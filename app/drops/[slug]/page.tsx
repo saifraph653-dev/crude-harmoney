@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getLiveProductSlugs, getProductDetailBySlug } from "@/lib/products";
-import { LiveStock } from "@/components/LiveStock";
+import { ProductBuyBox } from "@/components/ProductBuyBox";
 
 export async function generateStaticParams() {
   const slugs = await getLiveProductSlugs();
@@ -53,7 +53,11 @@ async function ProductDetail({
             {product.description}
           </p>
           <div className="mt-6">
-            <LiveStock variants={product.variants} currency={product.currency} />
+            {product.status === "live" ? (
+              <ProductBuyBox variants={product.variants} currency={product.currency} />
+            ) : (
+              <p className="text-sm text-zinc-500">No longer available.</p>
+            )}
           </div>
         </div>
       </div>

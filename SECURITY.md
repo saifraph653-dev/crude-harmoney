@@ -154,3 +154,122 @@ and any known product slug must show `○` (static); only `/api/stock`
 should show `ƒ` (dynamic). Re-run after any change to `lib/products.ts`
 to make sure a new code path hasn't accidentally pulled a live DB call
 into the page itself.
+
+## Never oversell (atomic stock reservation)
+
+**Control:** the only place `variants.stock_count` ever changes is a
+single conditional `UPDATE ... WHERE stock_count >= quantity RETURNING
+stock_count` inside the `reserve_stock_and_create_order()` Postgres
+function — never a read-then-write, never arithmetic done in application
+code. If the `WHERE` clause matches zero rows, the function raises and
+the whole transaction (including the order and order_items rows it
+would have inserted) rolls back, so a failed reservation never leaves a
+partial order behind. The mirror-image operation,
+`release_expired_reservations()`, restocks the same way (aggregated
+`UPDATE ... SET stock_count = stock_count + quantity`), so two
+overlapping releases for the same variant can't double-count.
+
+Both functions are plain SQL functions, not RLS-governed tables, so they
+need their own lockdown: `revoke all ... from public` + `grant execute
+... to service_role` in the migration, since Postgres grants EXECUTE on
+new functions to `PUBLIC` (which `anon`/`authenticated` inherit) by
+default. Without that explicit revoke, anyone with the anon key could
+call `reserve_stock_and_create_order` directly over PostgREST and create
+orders, bypassing every RLS wall on the `orders` table entirely.
+
+**Where:** `supabase/migrations/20260820230015_checkout_reservations.sql`,
+called from `app/checkout/actions.ts` via the service-role client.
+
+**How to verify:**
+
+1. `npm test` runs `tests/no-oversell.test.ts`: seeds a throwaway variant
+   with exactly 30 units, fires 200 concurrent
+   `reserve_stock_and_create_order` calls at it, and asserts exactly 30
+   succeed, every failure is `insufficient_stock` (not some other
+   error), final `stock_count` is exactly 0, and exactly 30 order rows
+   exist. It also asserts `anon` cannot call either function at all
+   (`tests/rls.test.ts`).
+2. Manually: run the same query the test does, or watch `stock_count`
+   never go negative under `npm run dev` while spamming the checkout
+   form for a low-stock variant.
+
+## Stock reservation TTL and release
+
+**Control:** `reserve_stock_and_create_order()` sets a 10-minute
+`expires_at` on the `stock_reservations` row it creates. Two independent
+mechanisms release an expired reservation, and correctness depends on
+neither running promptly:
+
+- **Lazy, inline reclaim.** Every call to `reserve_stock_and_create_order`
+  first releases *that variant's* own expired reservations before
+  checking availability. This means correctness never depends on the
+  cron job's schedule — even if it never ran, the next real purchase
+  attempt for a given size reclaims any abandoned holds on it first.
+- **`app/api/cron/release-reservations`**, invoked by Vercel Cron (see
+  `vercel.json`, every 5 minutes), sweeps *all* expired reservations.
+  This exists to keep the publicly *displayed* stock count
+  (`/api/stock`) accurate for people who are browsing but not currently
+  checking out that size, and to flip abandoned `pending` orders to
+  `expired`.
+
+**Vercel Hobby-plan caveat:** Hobby-tier cron jobs can only run once per
+day (Vercel's limit, not this app's). On Hobby, `/api/stock` could show
+a stale "sold out" for up to ~24h after someone abandons a checkout for
+that size, even though the lazy reclaim above means a real purchase
+attempt would succeed immediately. If that gap matters, either upgrade
+to Pro (per-minute crons) or call `/api/cron/release-reservations`
+yourself on a shorter interval from an external scheduler.
+
+The cron endpoint is protected the way Vercel's own docs recommend:
+compare the `Authorization` header against `CRON_SECRET`, which Vercel
+sends automatically when that env var is set on the project.
+
+**Where:** `reserve_stock_and_create_order()` and
+`release_expired_reservations()` in
+`supabase/migrations/20260820230015_checkout_reservations.sql`,
+`app/api/cron/release-reservations/route.ts`, `vercel.json`.
+
+**How to verify:**
+
+```bash
+curl -i https://$YOUR_DOMAIN/api/cron/release-reservations              # 401
+curl -i -H "Authorization: Bearer wrong" https://$YOUR_DOMAIN/api/cron/release-reservations  # 401
+curl -i -H "Authorization: Bearer $CRON_SECRET" https://$YOUR_DOMAIN/api/cron/release-reservations  # 200
+```
+
+Then manually expire a reservation (`update stock_reservations set
+expires_at = now() - interval '1 minute' where id = '...'`) and confirm
+re-running the cron call restocks the variant and flips the order to
+`expired`.
+
+## Server-computed totals, server-validated input
+
+**Control:** `app/checkout/actions.ts` never reads a price or total from
+the client — `reserve_stock_and_create_order()` re-reads
+`variants.price_cents` server-side and computes `total_cents` in SQL.
+The only client-supplied values that reach the database are a variant
+ID, a quantity, and free-text shipping/contact fields, all validated
+with zod `.strict()` (`lib/checkout.ts`) before the RPC call — unknown
+form fields are rejected rather than silently ignored.
+
+**Where:** `lib/checkout.ts` (schema), `app/checkout/actions.ts`
+(validates, then calls the RPC).
+
+**How to verify:** `grep -n "total_cents\|price_cents" app/checkout/actions.ts`
+should show these values only ever come back *from* the RPC response,
+never computed in TypeScript or read from `formData`.
+
+## Payment adapter boundary (PCI SAQ-A)
+
+**Control:** `lib/payments/types.ts` defines the only interface
+application code uses to talk to a payment provider — it carries an
+amount, currency, and identifiers, never a card number, CVV, or expiry.
+Card entry will happen entirely on the provider's hosted page/iframe
+once a real adapter (Dibsy/Tap) replaces `MockPaymentAdapter`; nothing
+in this codebase is positioned to ever see or store card data.
+
+**Where:** `lib/payments/`.
+
+**How to verify:** `grep -rniE "card|cvv|pan|expiry" lib/payments app/checkout`
+should turn up only this kind of comment, never a field name or variable
+that holds card data.

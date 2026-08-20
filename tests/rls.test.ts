@@ -136,4 +136,42 @@ describe("Row Level Security, enforced end-to-end through the Data API", () => {
       expect(res.status, `${table} must not be readable by anon`).not.toBe(200);
     }
   });
+
+  it("refuses the anon key on the order-writing RPC functions", async () => {
+    // These functions write orders/stock_reservations directly, bypassing
+    // the "orders has no policies" wall entirely -- if PostgREST exposed
+    // them to anon, that wall wouldn't matter. Every write to orders must
+    // go through server-side code using the service-role key.
+    const rpcRequest = (fn: string, body: Record<string, unknown>) =>
+      fetch(`${apiUrl}/rest/v1/rpc/${fn}`, {
+        method: "POST",
+        headers: {
+          apikey: anonKey,
+          Authorization: `Bearer ${anonKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+
+    const reserveRes = await rpcRequest("reserve_stock_and_create_order", {
+      p_variant_id: "00000000-0000-0000-0000-000000000000",
+      p_quantity: 1,
+      p_email: "attacker@example.com",
+      p_shipping_name: "x",
+      p_shipping_address_line1: "x",
+      p_shipping_address_line2: "",
+      p_shipping_city: "x",
+      p_shipping_country: "x",
+      p_shipping_postal_code: "",
+      p_note: "",
+    });
+    expect(reserveRes.status, "reserve_stock_and_create_order must not be anon-callable").not.toBe(
+      200,
+    );
+
+    const releaseRes = await rpcRequest("release_expired_reservations", {});
+    expect(releaseRes.status, "release_expired_reservations must not be anon-callable").not.toBe(
+      200,
+    );
+  });
 });
