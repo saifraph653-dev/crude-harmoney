@@ -10,4 +10,10 @@ export function getPaymentAdapter(): PaymentAdapter {
   return new MockPaymentAdapter();
 }
 
-export type { PaymentAdapter, CreateCheckoutSessionInput, CreateCheckoutSessionResult } from "./types";
+export type {
+  PaymentAdapter,
+  CreateCheckoutSessionInput,
+  CreateCheckoutSessionResult,
+  ParsedWebhookEvent,
+  WebhookEventKind,
+} from "./types";

@@ -273,3 +273,100 @@ in this codebase is positioned to ever see or store card data.
 **How to verify:** `grep -rniE "card|cvv|pan|expiry" lib/payments app/checkout`
 should turn up only this kind of comment, never a field name or variable
 that holds card data.
+
+## Confirm the sale on the webhook, never the browser redirect
+
+**Control:** `/checkout/success` (the page the customer's browser lands
+on after paying) does nothing but display a "we're confirming your
+payment" message — it never touches `orders.status`. The only code path
+that can move an order to `paid` is `app/api/webhooks/payment/route.ts`
+calling `fulfil_order_from_webhook()`. This matters because a browser
+redirect can be forged (a customer could just visit the success URL
+directly), lost (browser closed mid-redirect), or double-fired — none of
+those should be able to grant a free order.
+
+**Where:** `app/checkout/success/page.tsx` (display-only),
+`app/api/webhooks/payment/route.ts` (the only writer).
+
+**How to verify:** `grep -n "orders" app/checkout/success/page.tsx`
+should return nothing. Visiting `/checkout/success?order=<real order
+number>` directly, without ever paying, must not change that order's
+status — confirm with `select status from orders where order_number =
+'...'` before and after.
+
+## Webhook signature verification (raw body, before parsing)
+
+**Control:** `app/api/webhooks/payment/route.ts` reads the request body
+as raw text (`request.text()`) and verifies
+`adapter.verifyWebhookSignature(rawBody, signatureHeader)` before
+anything else runs — in particular, before any `JSON.parse`. This
+ordering is required, not stylistic: most providers (including the mock
+adapter's HMAC scheme) sign the exact byte sequence of the body, so
+parsing and re-serializing it first would produce different bytes and
+break every signature. `MockPaymentAdapter.verifyWebhookSignature` also
+uses `crypto.timingSafeEqual` rather than `===`, so a wrong signature
+guess can't be narrowed down via response-time differences.
+
+**Where:** `app/api/webhooks/payment/route.ts`,
+`lib/payments/mock-adapter.ts`.
+
+**How to verify:** `tests/webhook.test.ts` posts requests with no
+signature, a wrong signature, and a valid one, and asserts 401/401/200
+respectively. Manually: see README's "Simulating a payment locally" —
+change one character of `$SIG` before sending and confirm you get a 401
+instead of a fulfilled order.
+
+## Webhook idempotency (insert-or-ignore before processing)
+
+**Control:** every webhook event is recorded in `webhook_events` via an
+insert-or-ignore on the unique `(provider, event_id)` index *before* any
+fulfilment logic runs (`ON CONFLICT (provider, event_id) DO NOTHING`,
+via PostgREST's `upsert(..., { onConflict, ignoreDuplicates: true })`).
+A genuinely new event proceeds to fulfilment; a duplicate delivery of an
+already-`processed` event is acknowledged and skipped without
+reprocessing; a duplicate delivery of an event that was recorded but
+never finished processing (e.g. the server crashed mid-request) is
+retried using the existing ledger row, so retries can't be silently
+swallowed into a stuck `pending` state. Payment providers are documented
+to retry webhook delivery — this is the control built specifically for
+that.
+
+**Where:** `app/api/webhooks/payment/route.ts`, the unique index in
+`supabase/migrations/20260820222001_initial_schema.sql`.
+
+**How to verify:** `tests/webhook.test.ts`'s "is idempotent on replay"
+case posts the identical signed event twice and asserts the order is
+fulfilled exactly once (`status = 'paid'` after both, no error, no
+double-processing). Manually: run the same signed curl request from
+README's "Simulating a payment locally" section twice in a row and
+confirm the second response is `{"ok":true,"duplicate":true}`.
+
+## Amount verification before fulfilling
+
+**Control:** `fulfil_order_from_webhook()` (Postgres function) re-reads
+the order's stored `total_cents`/`currency` and compares them against
+what the webhook payload claims was charged, under a row lock (`FOR
+UPDATE`) so a concurrent delivery can't read a stale value. A mismatch
+returns `'amount_mismatch'` and the order is left `pending` — never
+fulfilled on a guess. The webhook route records this outcome as
+`processing_status = 'failed'`, `error_message = 'amount_mismatch'` on
+the `webhook_events` row.
+
+**"Alert" for v1:** there's no paging/Slack/email alerting service in
+this stack (deliberately — see the brief's dependency list). The
+`webhook_events` table *is* the alert surface: query
+`select * from webhook_events where processing_status = 'failed'` in
+the Supabase dashboard periodically, or wire up a Supabase dashboard
+alert/scheduled report later if volume ever justifies it. The same
+query surfaces `order_not_payable` (reservation expired before the
+webhook arrived) and `paid_but_reservation_lost` (the rare TTL-boundary
+race described in the migration's comments) — both need a human to look
+at the specific order, not an automated fix.
+
+**Where:** `fulfil_order_from_webhook()` in
+`supabase/migrations/20260820231850_webhook_fulfilment.sql`.
+
+**How to verify:** `tests/webhook.test.ts`'s "flags an amount mismatch"
+case. Manually: send a signed webhook with `amountCents` one off from
+the real order total and confirm the order stays `pending` and the
+`webhook_events` row shows `processing_status = 'failed'`.

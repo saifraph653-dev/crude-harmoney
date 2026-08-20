@@ -152,6 +152,71 @@ Set `CRON_SECRET` (a random 16+ character string) in your environment --
 Vercel automatically sends it as the cron request's `Authorization`
 header once that env var exists on the project.
 
+## Payment webhook
+
+`app/api/webhooks/payment/route.ts` is what actually confirms a sale --
+never the `/checkout/success` browser redirect, which can be forged,
+lost, or double-fired. In order:
+
+1. Read the raw request body as text, before anything else. Signature
+   verification is over the exact bytes the provider signed; parsing
+   first (even `request.json()`) breaks that for providers that sign the
+   raw body, which is most of them.
+2. Verify the signature (`adapter.verifyWebhookSignature`). Wrong or
+   missing signature → `401`, request stops here, nothing is recorded.
+3. Parse the now-verified body into a normalized event
+   (`adapter.parseWebhookEvent`). Unparseable → `400`.
+4. Record the event in `webhook_events` with an insert-or-ignore on the
+   unique `(provider, event_id)` index *before* doing anything else --
+   this is the idempotency guard. If the row already exists and is
+   already `processed`, stop here and acknowledge (`200`,
+   `{ok: true, duplicate: true}`) without reprocessing. If it exists but
+   isn't `processed` yet (a previous delivery got recorded but the
+   process crashed or errored before finishing), process it now using
+   that existing row -- this is what makes retries actually get handled
+   instead of just deduplicated into a black hole.
+5. Fulfil via the `fulfil_order_from_webhook` Postgres function
+   (`supabase/migrations`), which re-reads and compares the order's
+   stored `total_cents`/`currency` against what the webhook claims was
+   charged, and refuses to fulfil on a mismatch.
+
+HTTP status from this endpoint is `200` for everything except a bad
+signature or an unparseable body -- including business-logic failures
+like an amount mismatch or an order that's already expired. Those are
+permanent failures; returning non-200 for them would just make the
+provider retry-storm the exact same bad data forever. They're recorded
+instead with `processing_status = 'failed'` and an `error_message` on
+the `webhook_events` row, which is the alerting mechanism for v1 (query
+that table -- see SECURITY.md).
+
+### Simulating a payment locally
+
+There's deliberately no in-app button to simulate a successful payment
+(see the mock checkout page) -- that would be a live "pay for any order
+for free" endpoint if `MockPaymentAdapter` ever ended up active in
+production by accident. Instead, sign a payload by hand and post it to
+the real webhook route:
+
+```bash
+SESSION_ID="mock_<order-id-from-the-redirect-url>"   # from /checkout/mock/<this>
+SECRET="$PAYMENT_MOCK_WEBHOOK_SECRET"                 # from .env.local
+
+BODY=$(printf '{"eventId":"local-test-1","eventType":"payment.succeeded","providerSessionId":"%s","amountCents":28000,"currency":"QAR"}' "$SESSION_ID")
+SIG=$(printf '%s' "$BODY" | openssl dgst -sha256 -hmac "$SECRET" -hex | sed 's/^.* //')
+
+curl -i -X POST http://localhost:3000/api/webhooks/payment \
+  -H "x-mock-signature: $SIG" \
+  -H "Content-Type: application/json" \
+  -d "$BODY"
+```
+
+Use a fresh `eventId` each time (it's the idempotency key -- reusing one
+just re-triggers the duplicate path). Check the order landed on `paid`:
+
+```bash
+psql "$SUPABASE_DB_URL" -c "select order_number, status from orders order by created_at desc limit 1;"
+```
+
 ## Tests
 
 ```bash
@@ -180,17 +245,31 @@ Postgres and to the local PostgREST API). Currently covers:
   actually testing. (A separate k6 load test against the full HTTP
   checkout path, reporting p95 latency, lands with the load-test step --
   this vitest test is about correctness, that one is about performance.)
+- **Payment webhook** (`tests/webhook.test.ts`) — calls the real route
+  handler (not a mock of it) with actual `NextRequest` objects against
+  the local Postgres: rejects a missing/wrong signature, rejects a
+  correctly-signed but unparseable body, fulfils an order end-to-end on
+  a valid signed event and confirms replaying the identical event is a
+  no-op (idempotency), and confirms an amount mismatch is flagged
+  instead of fulfilling.
 
 ## Deployment (Vercel)
 
-Not yet documented — lands with the payment webhook step (once a real
-adapter exists, there's an actual deployment worth walking through end
-to end, including the `CRON_SECRET` and `NEXT_PUBLIC_SITE_URL` env vars
-introduced in this step).
+Not yet documented in full — still waiting on a real payment adapter
+(only `MockPaymentAdapter` exists so far) before there's an actual
+deployment worth walking through end to end. Env vars needed once you do
+deploy: everything in `.env.example`, set in Vercel's Project Settings →
+Environment Variables. `NEXT_PUBLIC_SITE_URL` must be the real production
+origin (not `localhost`) since it's baked into the payment provider's
+successUrl/cancelUrl. `CRON_SECRET` and `PAYMENT_MOCK_WEBHOOK_SECRET`
+(or whatever secret the real provider issues once wired in) should each
+be a random 16+ character string, generated with `openssl rand -hex 32`.
 
 ## Payment provider setup (Apple Pay domain verification)
 
-Not yet documented — lands once the payment adapter is built.
+Not yet documented — lands once a real adapter (Dibsy/Tap) replaces
+`MockPaymentAdapter` in `lib/payments/index.ts` and there's an actual
+merchant account to register a domain against.
 
 ## Load testing
 

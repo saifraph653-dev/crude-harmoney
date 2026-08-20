@@ -33,7 +33,11 @@ export default async function MockCheckoutPage(props: PageProps<"/checkout/mock/
         is reserved and waiting on payment confirmation.
       </p>
       <p className="mt-4 text-xs text-zinc-400">
-        Simulating a completed payment lands with the webhook handler.
+        There is deliberately no button here to simulate a payment -- that
+        would be a live &quot;pay for any order for free&quot; endpoint if
+        this ever shipped to production by accident. See README.md&apos;s
+        &quot;Simulating a payment locally&quot; section for the signed curl
+        request that exercises the real webhook path instead.
       </p>
     </main>
   );
