@@ -370,3 +370,87 @@ at the specific order, not an automated fix.
 case. Manually: send a signed webhook with `amountCents` one off from
 the real order total and confirm the order stays `pending` and the
 `webhook_events` row shows `processing_status = 'failed'`.
+
+## Order lookup: identical response, no enumeration oracle
+
+**Control:** `app/api/orders/lookup/route.ts` is the only way to read an
+`orders` row from the outside (the table has zero RLS policies -- see
+"Row Level Security" above -- so nothing gets in except through this
+server route, using the service-role key). It returns the exact same
+`{"found":false}` body, with the same HTTP 200 status, whether the input
+is malformed, the order number doesn't exist, or the order exists but
+the email doesn't match. A response that distinguished any of those
+cases -- even just by timing -- would let an attacker use the endpoint
+as an oracle: enumerate order numbers by trying many emails against a
+known guess (order numbers are a small sequential space, `CH-000001`,
+`CH-000002`, ...), or probe whether a given email placed any order at
+all.
+
+**Where:** `app/api/orders/lookup/route.ts`.
+
+**How to verify:**
+
+1. `tests/order-lookup.test.ts` asserts a nonexistent order number, a
+   mismatched email, and malformed/extra-field input all produce
+   byte-identical `{"found":false}` responses, and that both the found
+   and not-found paths take at least the artificial-delay floor
+   (currently 400ms) -- so timing can't distinguish them either.
+2. Manually:
+   ```bash
+   curl -s -w '\n%{time_total}\n' -X POST "$APP_URL/api/orders/lookup" \
+     -H 'Content-Type: application/json' \
+     -d '{"orderNumber":"CH-999999","email":"nobody@example.com"}'
+   # compare against a real order number + wrong email, and a real
+   # order number + right email -- response shape and rough timing
+   # should look the same for the first two, and only the third reveals
+   # order data.
+   ```
+
+**Not yet implemented (lands in the security-headers step, per the
+brief):** rate limiting by IP and Cloudflare Turnstile. The artificial
+delay here is a narrower, complementary control -- it defends the
+single-request timing side channel regardless of volume; rate limiting
+defends against volume regardless of timing. Both are needed.
+
+## Order confirmation email
+
+**Control:** `lib/webhook-processing.ts` sends the confirmation email
+exactly once per order -- only on the RPC result `'fulfilled'` (a fresh
+pending→paid transition), never on `'already_fulfilled'` (an idempotent
+webhook replay). This piggybacks on the same idempotency guarantee that
+prevents double-fulfilment, so there's no separate "have we emailed this
+order" flag to keep in sync.
+
+A failed email send is caught and recorded as a `warning` on the
+`webhook_events` row (`error_message = 'email_send_failed: ...'`) but
+does **not** flip `processing_status` to `'failed'` and does **not**
+make the webhook route return a non-200 -- the payment already
+succeeded and the order is already `paid`; an email hiccup must never
+look like a fulfilment failure or make the payment provider retry an
+already-successful webhook. If Resend isn't configured at all
+(`RESEND_API_KEY`/`RESEND_FROM_EMAIL` unset), sending is skipped with a
+console warning rather than throwing -- keeps local dev and any
+environment without a Resend account fully functional; the customer can
+always use order lookup instead.
+
+Every value interpolated into the HTML email (`lib/email/order-confirmation.ts`)
+is HTML-escaped, including the shipping name/address -- those are
+customer-supplied free text.
+
+**Where:** `lib/email/order-confirmation.ts` (template, pure function),
+`lib/email/send-order-confirmation.ts` (Resend call + graceful skip),
+`lib/webhook-processing.ts` (trigger point).
+
+**How to verify:**
+
+1. `tests/order-confirmation-email.test.ts` checks the built email
+   contains the order number/items/total in both HTML and plain text,
+   and that a shipping name containing `<script>` is escaped in the
+   HTML output rather than passed through raw.
+2. `tests/webhook.test.ts`'s fulfilment test implicitly covers the
+   graceful-skip path (no `RESEND_API_KEY` in the test environment) and
+   confirms a skipped/failed email doesn't affect the `{"ok":true}`
+   response or the order's `paid` status.
+3. Manually, once Resend is configured: run the "Simulating a payment
+   locally" recipe from README and check the inbox for `RESEND_FROM_EMAIL`'s
+   configured recipient.

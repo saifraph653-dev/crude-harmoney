@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { formatPrice } from "@/lib/format";
 
 const searchParamsSchema = z.object({
   orderNumber: z.string().optional(),
@@ -25,11 +26,7 @@ export default async function MockCheckoutPage(props: PageProps<"/checkout/mock/
       <p className="mt-2 text-sm text-zinc-500">
         Session {params.sessionId}. This stands in for Dibsy/Tap&apos;s hosted checkout
         until a merchant account is wired up. Order {orderNumber ?? "?"} for{" "}
-        {amountCents != null && currency
-          ? new Intl.NumberFormat("en-QA", { style: "currency", currency }).format(
-              amountCents / 100,
-            )
-          : "?"}{" "}
+        {amountCents != null && currency ? formatPrice(amountCents, currency) : "?"}{" "}
         is reserved and waiting on payment confirmation.
       </p>
       <p className="mt-4 text-xs text-zinc-400">

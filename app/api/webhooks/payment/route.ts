@@ -97,9 +97,13 @@ export async function POST(request: NextRequest) {
   await admin
     .from("webhook_events")
     .update({
+      // A warning on an ok result (e.g. the confirmation email failed to
+      // send) still counts as 'processed' -- fulfilment succeeded, this
+      // is just a note for manual follow-up, not a reason to make the
+      // provider retry an already-successful webhook.
       processing_status: result.ok ? "processed" : "failed",
       processed_at: new Date().toISOString(),
-      error_message: result.ok ? null : result.reason,
+      error_message: result.ok ? (result.warning ?? null) : result.reason,
     })
     .eq("id", eventRow.id);
 

@@ -8,6 +8,9 @@ export default function Home() {
       <Link href="/drops" className="underline">
         Shop the current drop
       </Link>
+      <Link href="/orders/lookup" className="text-sm text-zinc-500 underline">
+        Track an order
+      </Link>
     </main>
   );
 }

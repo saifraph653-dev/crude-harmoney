@@ -4,12 +4,9 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { VariantSummary } from "@/lib/dto/products";
 import { MAX_QUANTITY_PER_ORDER } from "@/lib/checkout";
+import { formatPrice } from "@/lib/format";
 
 const POLL_INTERVAL_MS = 10_000;
-
-function formatPrice(cents: number, currency: string) {
-  return new Intl.NumberFormat("en-QA", { style: "currency", currency }).format(cents / 100);
-}
 
 function availabilityLabel(count: number | undefined) {
   if (count === undefined) return "Checking stock…";

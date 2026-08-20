@@ -2,6 +2,7 @@ import Link from "next/link";
 import { z } from "zod";
 import { getCheckoutVariant } from "@/lib/checkout-data";
 import { mapReservationError, MAX_QUANTITY_PER_ORDER } from "@/lib/checkout";
+import { formatPrice } from "@/lib/format";
 import { submitCheckout } from "./actions";
 
 const searchParamsSchema = z.object({
@@ -9,10 +10,6 @@ const searchParamsSchema = z.object({
   qty: z.coerce.number().int().min(1).max(MAX_QUANTITY_PER_ORDER).optional().default(1),
   error: z.string().optional(),
 });
-
-function formatPrice(cents: number, currency: string) {
-  return new Intl.NumberFormat("en-QA", { style: "currency", currency }).format(cents / 100);
-}
 
 // This page reads searchParams and does an uncached, always-fresh stock
 // lookup by design (see lib/checkout-data.ts) -- it's a per-purchase-attempt

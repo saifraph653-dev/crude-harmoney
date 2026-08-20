@@ -1,7 +1,9 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { ParsedWebhookEvent } from "./payments";
+import { sendOrderConfirmationEmail } from "./email/send-order-confirmation";
+import type { OrderConfirmationEmailInput } from "./email/order-confirmation";
 
-export type ProcessResult = { ok: true } | { ok: false; reason: string };
+export type ProcessResult = { ok: true; warning?: string } | { ok: false; reason: string };
 
 /**
  * Fulfilment logic, separated from the route handler so it's testable
@@ -50,7 +52,22 @@ export async function processPaymentWebhookEvent(
     return { ok: false, reason: `fulfil_rpc_failed: ${rpcError.message}` };
   }
 
-  if (result === "fulfilled" || result === "already_fulfilled") {
+  if (result === "already_fulfilled") {
+    // Idempotent replay -- already fulfilled (and already emailed) by an
+    // earlier delivery. Do not send a second confirmation email.
+    return { ok: true };
+  }
+
+  if (result === "fulfilled") {
+    // Best-effort: a failed email must never undo an already-fulfilled
+    // order, or make the caller mark this webhook_events row 'failed'
+    // (which would suggest fulfilment itself failed, and cause the
+    // provider to keep retrying a webhook that already succeeded).
+    try {
+      await sendOrderConfirmationEmail(await loadOrderForEmail(admin, order.id));
+    } catch (err) {
+      return { ok: true, warning: `email_send_failed: ${(err as Error).message}` };
+    }
     return { ok: true };
   }
 
@@ -58,4 +75,51 @@ export async function processPaymentWebhookEvent(
   // need manual review (see SECURITY.md). Surfaced via webhook_events'
   // processing_status/error_message, not silently retried.
   return { ok: false, reason: String(result) };
+}
+
+async function loadOrderForEmail(
+  admin: SupabaseClient,
+  orderId: string,
+): Promise<OrderConfirmationEmailInput> {
+  const { data: order, error: orderError } = await admin
+    .from("orders")
+    .select(
+      "order_number, email, total_cents, currency, shipping_name, shipping_address_line1, shipping_address_line2, shipping_city, shipping_country, shipping_postal_code",
+    )
+    .eq("id", orderId)
+    .single();
+
+  if (orderError || !order) {
+    throw new Error(`loadOrderForEmail: ${orderError?.message ?? "order not found"}`);
+  }
+
+  const { data: items, error: itemsError } = await admin
+    .from("order_items")
+    .select("product_name_snapshot, variant_size_snapshot, unit_price_cents, quantity")
+    .eq("order_id", orderId);
+
+  if (itemsError) {
+    throw new Error(`loadOrderForEmail items: ${itemsError.message}`);
+  }
+
+  return {
+    orderNumber: order.order_number,
+    email: order.email,
+    totalCents: order.total_cents,
+    currency: order.currency,
+    items: (items ?? []).map((item) => ({
+      productName: item.product_name_snapshot,
+      size: item.variant_size_snapshot,
+      quantity: item.quantity,
+      unitPriceCents: item.unit_price_cents,
+    })),
+    shipping: {
+      name: order.shipping_name,
+      addressLine1: order.shipping_address_line1,
+      addressLine2: order.shipping_address_line2,
+      city: order.shipping_city,
+      country: order.shipping_country,
+      postalCode: order.shipping_postal_code,
+    },
+  };
 }

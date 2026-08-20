@@ -217,6 +217,38 @@ just re-triggers the duplicate path). Check the order landed on `paid`:
 psql "$SUPABASE_DB_URL" -c "select order_number, status from orders order by created_at desc limit 1;"
 ```
 
+## Order confirmation email
+
+Sent from `lib/webhook-processing.ts` exactly once per order, right
+after a *fresh* `fulfilled` result from `fulfil_order_from_webhook`
+(never on an idempotent replay -- see SECURITY.md). Uses
+[Resend](https://resend.com); set `RESEND_API_KEY` and
+`RESEND_FROM_EMAIL` (e.g. `Crude Harmony <orders@yourdomain.com>`, using
+a domain verified in your Resend account) in `.env.local`/Vercel. If
+either is unset, sending is skipped with a console warning -- checkout
+and fulfilment still work fully without a Resend account, which is the
+default in local dev.
+
+The email template (`lib/email/order-confirmation.ts`) is a plain
+function returning `{ subject, html, text }` with no external
+dependency beyond `resend` itself -- no React Email, no separate
+templating engine.
+
+## Order lookup
+
+`/orders/lookup` — guest customers look up an order with order number +
+email, matching the "no accounts" design (see SECURITY.md's "Order
+lookup" section for why every response is identical regardless of
+whether the order exists). The page itself
+(`app/orders/lookup/page.tsx`) is fully static (no dynamic data access);
+`components/OrderLookupForm.tsx` is a client component that POSTs to
+`app/api/orders/lookup/route.ts` and renders whatever comes back.
+
+**Not yet protected by rate limiting or Turnstile** -- both land in the
+next step. Don't rely on this endpoint's current protections (generic
+response + artificial delay) as the only defense in production; they're
+real but partial until step 6 lands.
+
 ## Tests
 
 ```bash
@@ -252,6 +284,17 @@ Postgres and to the local PostgREST API). Currently covers:
   a valid signed event and confirms replaying the identical event is a
   no-op (idempotency), and confirms an amount mismatch is flagged
   instead of fulfilling.
+- **Order lookup** (`tests/order-lookup.test.ts`) — calls the real route
+  handler: finds a real order with matching order number + email;
+  asserts a nonexistent order number, a mismatched email, and malformed
+  input all produce the byte-identical `{"found":false}` response;
+  asserts both the found and not-found paths take at least the
+  artificial-delay floor; confirms order number/email matching is
+  case-insensitive.
+- **Order confirmation email** (`tests/order-confirmation-email.test.ts`)
+  — the template function (pure, no network) includes the order
+  number/items/total in both HTML and plain text, and HTML-escapes a
+  shipping name containing `<script>` rather than passing it through raw.
 
 ## Deployment (Vercel)
 
