@@ -67,6 +67,40 @@ npx supabase migration new <name>
 Write plain SQL in the generated file under `supabase/migrations/`. Never
 hand-edit an already-applied migration; add a new one instead.
 
+`supabase/seed.sql` seeds one sample product (applied automatically by
+`supabase db reset`/`supabase start`) so the drop pages have something to
+render locally. It's a placeholder for local dev, not the real seed
+workflow — that lands as its own deliverable later.
+
+## Running the app
+
+```bash
+npm run dev
+```
+
+Requires the local Supabase stack running (see above) — the drop pages
+read `products`/`variants` through the anon key at request/build time.
+
+## Caching model
+
+This project uses [Cache Components](https://nextjs.org/docs/app/api-reference/config/next-config-js/cacheComponents)
+(`cacheComponents: true` in `next.config.ts`), Next 16's current caching
+model — not the older `export const revalidate = N` convention. Data
+functions in `lib/products.ts` are marked `"use cache"` with an explicit
+`cacheLife` (currently the `minutes` profile: revalidate every minute,
+hard-expire after an hour) so the drop pages are served as a static,
+cached shell with no database call in the request path. `generateStaticParams`
+prerenders every live product at build time; any other slug (e.g. one that
+goes live between deploys) gets an instant App Shell on first visit and is
+upgraded to a fully static page in the background for the next visitor.
+
+Live stock is deliberately excluded from that cache. `app/api/stock/route.ts`
+is an uncached route handler that reads `variants.stock_count` fresh on
+every call; the `<LiveStock>` client component polls it every 10s after the
+cached page has loaded. Verify the split with `npm run build` — the route
+summary should show `/drops` and `/drops/[known-slug]` as static (`○`) and
+`/api/stock` as dynamic (`ƒ`).
+
 ## Tests
 
 ```bash

@@ -95,3 +95,62 @@ using `SUPABASE_SERVICE_ROLE_KEY` write orders. That key must never reach
 the browser — see the "Secrets" section (added when the checkout step
 lands, which is the first step that actually uses the service-role key in
 application code).
+
+## Least privilege on public reads
+
+**Control:** every public-facing read (`lib/products.ts`, the live-stock
+route handler) uses the anon/publishable key, never the service-role key.
+The anon key can only ever do what the RLS policies above allow — even a
+bug in application code (a typo'd `.eq()`, a missing filter) can't leak
+`orders`, `order_items`, `stock_reservations`, or `webhook_events`, because
+the database itself refuses the request regardless of what the app code
+asked for. The service-role key isn't introduced into the codebase at all
+until the checkout step, which is the first place server code needs to
+write orders.
+
+**Where:** `lib/supabase/public.ts` (the only Supabase client factory that
+exists so far).
+
+**How to verify:** `grep -rn SUPABASE_SERVICE_ROLE_KEY app lib` should
+currently return nothing — the identifier shouldn't appear anywhere in
+application code yet.
+
+## Input validation on public endpoints
+
+**Control:** every route handler validates its input with zod `.strict()`
+before touching the database, per the project's blanket rule ("validate
+every server action and route handler input with zod"). `app/api/stock/route.ts`
+rejects anything that isn't 1-50 comma-separated UUIDs with a 400, before
+any query runs.
+
+**Where:** `app/api/stock/route.ts`.
+
+**How to verify:**
+
+```bash
+curl -i "$APP_URL/api/stock?variantIds=not-a-uuid"   # 400
+curl -i "$APP_URL/api/stock"                          # 400, missing param
+curl -i "$APP_URL/api/stock?variantIds=$REAL_UUID"    # 200
+```
+
+## No database call in the critical render path
+
+**Control:** the drop pages (`/drops`, `/drops/[slug]`) are built with
+[Cache Components](https://nextjs.org/docs/app/api-reference/config/next-config-js/cacheComponents)
+(`cacheComponents: true`) and `"use cache"` on the data functions in
+`lib/products.ts`, so they're served as a prerendered static shell — no
+request-time database round trip. This matters for the brief's core
+threat model (200 concurrent buyers in a 10-minute window): even if
+Postgres is slow or briefly unavailable, the page that tells people the
+drop exists still loads instantly from cache. Only `app/api/stock/route.ts`
+hits the database on every call, by design — see the README's "Caching
+model" section.
+
+**Where:** `next.config.ts` (`cacheComponents`), `lib/products.ts`
+(`"use cache"` + `cacheLife`), `app/drops/page.tsx`, `app/drops/[slug]/page.tsx`.
+
+**How to verify:** `npm run build` and check the route summary — `/drops`
+and any known product slug must show `○` (static); only `/api/stock`
+should show `ƒ` (dynamic). Re-run after any change to `lib/products.ts`
+to make sure a new code path hasn't accidentally pulled a live DB call
+into the page itself.
