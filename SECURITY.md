@@ -2,8 +2,57 @@
 
 Every control below maps to a requirement from the project brief. Each entry
 says what it is, where it lives, and exactly how to re-verify it yourself
-later. This file grows as the build proceeds; sections for later steps
-(webhooks, headers, rate limiting, etc.) are added when those steps land.
+later.
+
+## Checklist
+
+Grouped the way the original brief grouped them, for scanning against your
+own mental checklist. ✅ = built and verified (see that section for how).
+⚠️ = built, but with a real caveat that needs your attention before launch.
+⏳ = intentionally not applicable yet (no real payment provider/domain).
+
+**Secrets and git hygiene**
+- ✅ [Secrets and git hygiene](#secrets-and-git-hygiene) — `.env.local` gitignored from commit one, gitleaks pre-commit + CI, `.env.example`
+- ✅ [Build-time assertion: server-only code never reaches a client bundle](#build-time-assertion-server-only-code-never-reaches-a-client-bundle)
+
+**Database and Row Level Security**
+- ✅ [Row Level Security (database)](#row-level-security-database) — RLS enabled on every table, default-deny, a test that fails the build if any table has RLS disabled
+- ✅ [Least privilege on public reads](#least-privilege-on-public-reads) — anon key everywhere it's used, service-role key nowhere near a client bundle
+
+**Don't trust the client**
+- ✅ [Server-computed totals, server-validated input](#server-computed-totals-server-validated-input)
+- ✅ [Input validation on public endpoints](#input-validation-on-public-endpoints) — zod `.strict()` everywhere user input enters
+- ✅ [Explicit column allow-lists and DTOs, never raw rows](#explicit-column-allow-lists-and-dtos-never-raw-rows)
+
+**Never oversell**
+- ✅ [Never oversell (atomic stock reservation)](#never-oversell-atomic-stock-reservation) — proven at the database layer (200 concurrent, exactly 30 succeed) and again through the real HTTP stack (k6)
+- ✅ [Stock reservation TTL and release](#stock-reservation-ttl-and-release)
+
+**Payments**
+- ✅ [Webhook signature verification (raw body, before parsing)](#webhook-signature-verification-raw-body-before-parsing)
+- ✅ [Webhook idempotency (insert-or-ignore before processing)](#webhook-idempotency-insert-or-ignore-before-processing)
+- ✅ [Amount verification before fulfilling](#amount-verification-before-fulfilling)
+- ✅ [Confirm the sale on the webhook, never the browser redirect](#confirm-the-sale-on-the-webhook-never-the-browser-redirect)
+- ✅ [Payment adapter boundary (PCI SAQ-A)](#payment-adapter-boundary-pci-saq-a)
+- ⏳ **Apple Pay domain verification** — no merchant account yet; see README's "Payment provider setup" section for the generic procedure and what's provider-specific.
+
+**Transport and headers**
+- ✅ [Content-Security-Policy: nonces, no unsafe-inline](#content-security-policy-nonces-no-unsafe-inline-with-one-narrow-documented-exception) (one narrow, documented exception for `next/image`'s inline style attribute)
+- ✅ [Other security headers](#other-security-headers) — HSTS, nosniff, Referrer-Policy, Permissions-Policy, X-Frame-Options
+- ✅ HTTPS enforcement — see "Other security headers," handled by Vercel's platform TLS termination + the HSTS header
+
+**Abuse and bots**
+- ⚠️ [Rate limiting](#rate-limiting) — built and tested, but **fails open if `UPSTASH_REDIS_REST_URL`/`TOKEN` aren't set in production**. Confirm they're set before launch.
+- ✅ [Order lookup: identical response, no enumeration oracle](#order-lookup-identical-response-no-enumeration-oracle)
+- ✅ [Cloudflare Turnstile on order lookup](#cloudflare-turnstile-on-order-lookup)
+- ⏳ **Cloudflare in front of the domain** — infrastructure/DNS, not application code; see README's "Cloudflare in front of the domain" section. Not done since there's no live domain yet.
+
+**Injection and output**
+- ✅ [No string-concatenated SQL](#no-string-concatenated-sql)
+- ✅ [Output escaping: no dangerouslySetInnerHTML, sanitized free text](#output-escaping-no-dangeroussetinnerhtml-sanitized-free-text)
+
+**Dependencies**
+- ⚠️ [Dependencies](#dependencies) — `npm audit` + lint + build in CI, Dependabot enabled. The database-backed test suite (RLS, no-oversell, webhook, order-lookup) is not yet wired into CI — see that section.
 
 ## Secrets and git hygiene
 
@@ -117,13 +166,19 @@ application code yet.
 
 ## Input validation on public endpoints
 
-**Control:** every route handler validates its input with zod `.strict()`
-before touching the database, per the project's blanket rule ("validate
-every server action and route handler input with zod"). `app/api/stock/route.ts`
-rejects anything that isn't 1-50 comma-separated UUIDs with a 400, before
-any query runs.
+**Control:** every route handler and Server Action validates its input
+with zod `.strict()` before touching the database, per the project's
+blanket rule ("validate every server action and route handler input
+with zod") -- `.strict()` specifically, not just `.parse()`, so an
+unexpected extra field is rejected rather than silently ignored.
+`app/api/stock/route.ts` rejects anything that isn't 1-50 comma-separated
+UUIDs with a 400, before any query runs.
 
-**Where:** `app/api/stock/route.ts`.
+**Where:** `app/api/stock/route.ts`, `lib/checkout.ts` (schema used by
+`app/checkout/actions.ts`), `app/api/orders/lookup/route.ts`,
+`scripts/seed-products.mjs` (the one script that touches the database
+directly with operator-supplied data, not a request handler, but the
+same rule applies).
 
 **How to verify:**
 
@@ -132,6 +187,51 @@ curl -i "$APP_URL/api/stock?variantIds=not-a-uuid"   # 400
 curl -i "$APP_URL/api/stock"                          # 400, missing param
 curl -i "$APP_URL/api/stock?variantIds=$REAL_UUID"    # 200
 ```
+
+Or: `grep -rn '\.strict()' lib app` -- every zod object schema that
+parses external input should have one.
+
+## Explicit column allow-lists and DTOs, never raw rows
+
+**Control:** every Supabase query in this codebase names its columns
+explicitly (`.select("id, order_number, status, ...")`); there is no
+`.select("*")` anywhere. API responses and email/DTO builders construct
+a new plain object with exactly the fields the caller needs
+(`lib/dto/order-lookup.ts`, `lib/dto/products.ts`, the JSON bodies built
+in `app/api/orders/lookup/route.ts` and `app/api/stock/route.ts`) rather
+than forwarding a database row. This matters because a table gaining a
+new column later (say, an internal ops note field) can't silently leak
+into a response just because a handler happened to select everything --
+each response's shape is a deliberate choice made at the point it's
+built, not a byproduct of whatever the table currently looks like.
+
+**Where:** everywhere a Supabase query exists -- `grep -rn "select(" app
+lib` and confirm none is `"*"`.
+
+**How to verify:** `grep -rn '\.select(\s*["'"'"'\`]\*["'"'"'\`]' app lib`
+should return nothing.
+
+## No string-concatenated SQL
+
+**Control:** every database access from application code goes through
+either the Supabase JS client's query builder (which parameterizes
+everything itself) or a named Postgres function called via `.rpc()`
+with named arguments (never a raw SQL string built by concatenating
+user input) -- `reserve_stock_and_create_order`,
+`fulfil_order_from_webhook`, `release_expired_reservations`. The
+project's `pg` dependency (used only in `tests/rls.test.ts` for direct
+Postgres introspection queries against `pg_catalog`/`information_schema`)
+uses parameterized placeholders (`$1`) for the one query that takes a
+variable, and every other query in that file is a static string with no
+user input at all.
+
+**Where:** the entire `app/`/`lib/` tree (Supabase client + `.rpc()`
+only), `supabase/migrations/*.sql` (all static SQL, not generated from
+user input), `tests/rls.test.ts` (the one place raw SQL is written by
+hand, for schema introspection, not user data).
+
+**How to verify:** `grep -rn "query(\`" app lib` (backtick-templated SQL
+built at runtime) should return nothing.
 
 ## No database call in the critical render path
 
@@ -666,6 +766,42 @@ must carry a valid nonce like every other script on the site).
 2. Manually: load `/orders/lookup` in a real browser with real
    Turnstile keys configured and confirm the widget renders and the
    submit button is disabled until it completes.
+
+## Output escaping: no dangerouslySetInnerHTML, sanitized free text
+
+**Control:** `eslint.config.mjs` sets `react/no-danger` to `error`,
+banning `dangerouslySetInnerHTML` outright rather than reviewing it
+case by case (verified during the security-headers step: a scratch
+component using it was confirmed to fail lint, then deleted). Every
+customer-supplied free-text field (shipping name/address, order note)
+is capped at a fixed length by its zod schema
+(`lib/checkout.ts`'s `checkoutFormSchema`) and rendered exclusively
+through paths that escape it: React's default JSX escaping everywhere
+it reaches a page, and an explicit `escapeHtml()` function
+(`lib/email/order-confirmation.ts`) everywhere it reaches the HTML
+email template. Nothing sanitizes by *stripping* characters at input
+time -- that's deliberate, not an oversight: escaping correctly at
+every output site is the actually-correct defense (it's what "React
+escapes output by default" in the brief is describing), and stripping
+at input time is a common source of subtle bugs (double-encoding,
+losing legitimate characters, or missing an output site the stripping
+didn't anticipate) without adding real protection on top of consistent
+output escaping.
+
+**Where:** `eslint.config.mjs` (`react/no-danger`), `lib/checkout.ts`
+(length caps), `lib/email/order-confirmation.ts` (`escapeHtml`).
+
+**How to verify:**
+
+1. `grep -rn dangerouslySetInnerHTML app components lib` should return
+   nothing; `npm run lint` enforces this on every push regardless.
+2. `tests/order-confirmation-email.test.ts`'s escaping test: builds an
+   email with a shipping name of `<script>alert("x")</script>` and
+   asserts the HTML output contains `&lt;script&gt;`, never a literal
+   `<script>` tag.
+3. Manually: submit a checkout with a shipping name containing HTML
+   special characters and confirm it displays as literal text
+   everywhere it's shown (checkout confirmation, order lookup, email).
 
 ## Dependencies
 

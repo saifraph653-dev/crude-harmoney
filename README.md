@@ -81,6 +81,41 @@ npm run dev
 Requires the local Supabase stack running (see above) — the drop pages
 read `products`/`variants` through the anon key at request/build time.
 
+## Seeding products
+
+There is no CMS and no admin UI by design (see AGENTS.md/the brief) —
+`scripts/seed-products.mjs` is the product-entry workflow. It reads a
+JSON file (default `seed/products.json`, or pass a path as the first
+argument), validates it with the same zod-`.strict()` discipline as
+every other input boundary in this project, and inserts each product
+and its variants via the service-role key.
+
+```bash
+npm run seed:products                 # seed/products.json
+node scripts/seed-products.mjs seed/my-real-drop.json
+```
+
+`seed/products.json` ships with one example product (`example-drop-tee`,
+`status: "draft"`) as a template — copy its shape for a real drop, and
+give each variant a real `sku`, `priceCents` (integer minor units, e.g.
+fils), and `stockCount`.
+
+Two things worth knowing before you run it against production data:
+
+- **Re-running is safe, but only skips.** A product whose `slug`
+  already exists is left completely untouched — the script never
+  updates it. This is deliberate: once a product has sold units, there
+  is no way for the script to tell "the operator fixed a typo in the
+  JSON" apart from "the operator is about to accidentally reset
+  `stock_count` and undo real sales" from a second run. Once a product
+  exists, edit it via the Supabase dashboard (Table Editor), per the
+  project's "admin work happens in the Supabase dashboard" rule — not
+  by re-running this script.
+- **Products seed as `"draft"` unless you say otherwise.** Set
+  `"status": "live"` in the JSON once the drop should actually appear
+  on `/drops`, or flip it in the Supabase dashboard when it's time to
+  go live.
+
 ## Caching model
 
 This project uses [Cache Components](https://nextjs.org/docs/app/api-reference/config/next-config-js/cacheComponents)
@@ -412,9 +447,67 @@ deployment worth walking through end to end. Checklist for when you do:
 
 ## Payment provider setup (Apple Pay domain verification)
 
-Not yet documented — lands once a real adapter (Dibsy/Tap) replaces
-`MockPaymentAdapter` in `lib/payments/index.ts` and there's an actual
-merchant account to register a domain against.
+Apple requires any merchant accepting Apple Pay on the web to verify
+ownership of every domain it's offered on. Neither Dibsy nor Tap has
+been chosen yet (`lib/payments/index.ts` currently only wires up
+`MockPaymentAdapter` -- see "Payment adapter boundary" in SECURITY.md),
+so the provider-specific dashboard steps below can't be written yet.
+What follows is the generic pattern common to hosted-checkout providers
+that support Apple Pay, plus what's already true regardless of which
+one you pick, so you're not starting from zero once the merchant
+account is approved.
+
+**The pattern, in general:**
+
+1. The payment provider gives you a domain-association file (a plain
+   text file, name usually
+   `apple-developer-merchantid-domain-association`).
+2. It must be served, unmodified, over HTTPS at exactly
+   `https://<your-domain>/.well-known/apple-developer-merchantid-domain-association`
+   -- no redirects, no extra headers changing the body, `Content-Type`
+   generally doesn't matter but the byte content must match exactly
+   what the provider issued.
+3. You register the domain in the payment provider's dashboard, which
+   fetches that URL to verify it, then marks the domain as
+   Apple-Pay-enabled on their side.
+4. Apple Pay stays broken on that domain until this succeeds -- other
+   payment methods (card via the hosted page, etc.) are unaffected.
+
+**Already true, regardless of provider:**
+
+- **Valid HTTPS certificate**: satisfied automatically. Vercel
+  provisions and renews TLS certificates for every production domain
+  and preview deployment; there's nothing to configure here beyond
+  pointing DNS at Vercel (or at Cloudflare in front of it, per
+  "Cloudflare in front of the domain" above -- if you do that, make
+  sure Cloudflare isn't set to redirect or minify/rewrite the
+  `.well-known` path, which would corrupt the file).
+- **Where the file needs to live**: this is a static file at a fixed
+  path with no auth and no per-request logic, so it belongs in
+  `public/.well-known/apple-developer-merchantid-domain-association`
+  once you have the real file content -- Next.js serves anything under
+  `public/` verbatim at the matching URL path. Do not build a route
+  handler for this; a route handler risks adding headers or
+  transformations the exact-byte-match check doesn't want.
+- **One file per domain**: if you verify both a production domain and
+  a preview/staging domain, each needs its own registration (though
+  typically only the production domain matters for a real drop).
+
+**Provider-specific, to fill in once Dibsy or Tap is chosen:**
+
+- Exact dashboard location to request/download the domain-association
+  file and register the domain.
+- Whether the provider wants the file re-verified after Apple Pay
+  domain-association files rotate (Apple periodically reissues these
+  industry-wide; some providers require re-registration when that
+  happens, others handle it transparently).
+- Whether Apple Pay is even available in the provider's Qatar/GCC
+  merchant offering -- confirm this before assuming it'll be an option
+  at all, since not every hosted-checkout provider in the region
+  supports it.
+
+This section will get the concrete step-by-step once you tell me which
+provider you're going with.
 
 ## Load testing
 

@@ -1,0 +1,17 @@
+[
+  {
+    "slug": "example-drop-tee",
+    "name": "Example Drop Tee",
+    "description": "Heavyweight cotton, boxy fit. Replace this entry with your real drop before running against production -- see README's \"Seeding products\" section.",
+    "status": "draft",
+    "imagePath": "/products/placeholder.svg",
+    "imageWidth": 800,
+    "imageHeight": 800,
+    "variants": [
+      { "size": "S", "sku": "EDT-S", "priceCents": 18000, "stockCount": 8, "sortOrder": 1 },
+      { "size": "M", "sku": "EDT-M", "priceCents": 18000, "stockCount": 12, "sortOrder": 2 },
+      { "size": "L", "sku": "EDT-L", "priceCents": 18000, "stockCount": 8, "sortOrder": 3 },
+      { "size": "XL", "sku": "EDT-XL", "priceCents": 18000, "stockCount": 4, "sortOrder": 4 }
+    ]
+  }
+]
