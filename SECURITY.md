@@ -691,3 +691,24 @@ both the `gitleaks` and `CI` workflows should be green.
 `npm audit --audit-level=high` locally should print `found 0
 vulnerabilities` (or whatever the current count is, if a new advisory
 has landed since this was written).
+
+## Load test: never oversell holds under real HTTP, not just at the database layer
+
+**Control:** `load-test/checkout.js` (k6) confirms the same result as
+`tests/no-oversell.test.ts` -- exactly N reservations succeed against N
+units of stock, zero oversold -- but through the real HTTP stack
+(Next.js Server Action, PostgREST, the whole path a real buyer's browser
+takes), not by calling the Postgres function directly. Run against this
+project's own local stack with 200 concurrent virtual users and 30 units
+of stock: 30 reserved, 170 correctly told the size was sold out, 0
+oversold, 0 unexpected outcomes.
+
+**Where:** `load-test/checkout.js`, `scripts/seed-load-test.mjs`.
+
+**How to verify:** see README's "Load testing" section for the exact
+commands. That section is also unusually candid about a limitation: the
+p95 latency numbers measured in the sandbox this project was built in
+are not representative of Vercel production (single-process queuing
+artifact, load generator sharing the same CPU as the server under test)
+-- re-run against a real Vercel deployment before the first real drop,
+which this build environment cannot do itself.

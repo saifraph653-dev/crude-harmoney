@@ -418,4 +418,84 @@ merchant account to register a domain against.
 
 ## Load testing
 
-Not yet documented — lands with the load test step.
+`load-test/checkout.js` is a [k6](https://k6.io) script that exercises
+the full checkout path over real HTTP -- product page, live stock check,
+checkout page, and the checkout submission itself (which invokes
+`reserve_stock_and_create_order()` server-side) -- with 200 virtual
+users each making one checkout attempt, per the brief. This is a
+different test from `tests/no-oversell.test.ts` (step 3): that one
+proves correctness (exactly 30 of 200 concurrent attempts succeed) by
+calling the database function directly; this one measures real HTTP
+performance under the same load, including Next.js request handling,
+PostgREST, and network overhead.
+
+k6 is a standalone binary, not an npm package -- install it per
+https://k6.io/docs/get-started/installation/ (e.g. `brew install k6`,
+or download a release binary directly).
+
+```bash
+# 1. Build and start in production mode (load testing next dev would
+#    measure dev-mode overhead, not real behavior)
+npm run build && npm start
+
+# 2. In another terminal: seed a dedicated test product/variant
+#    (idempotent -- re-running resets stock and clears prior test orders)
+npm run load-test:seed
+# prints a ready-to-run k6 command with the seeded VARIANT_ID
+
+# 3. Run it
+k6 run -e BASE_URL=http://localhost:3000 -e VARIANT_ID=<uuid> load-test/checkout.js
+```
+
+The script prints p95 latency per step and a breakdown of outcomes
+(reserved / sold out / unexpected) to stdout, and writes the full k6
+metrics to `load-test/summary.json` (gitignored).
+
+### What I measured, and why the raw numbers from this environment aren't the ones that matter
+
+Ran this for real against the local stack in the sandbox this was built
+in (4 CPU cores, `next start` in production mode, real local Postgres).
+At 200 concurrent: **0 oversold** (exactly 30 reserved, 170 correctly
+told the size was sold out -- matches `tests/no-oversell.test.ts`'s
+result, now confirmed through the real HTTP/Server-Action stack too, not
+just the database function directly). Per-step p95:
+
+| Step | p95 |
+| --- | --- |
+| `GET /api/stock` | 94ms |
+| `POST /checkout` (the actual reservation) | 154ms |
+| `GET /checkout` | 348ms |
+| `GET /drops/[slug]` | **7,819ms** |
+
+That last number is real, reproducible, and worth explaining rather
+than hiding: `/drops/[slug]` is a Server-Side-Rendered page (forced
+dynamic by the CSP nonce requirement -- see "Caching model" above), and
+`next start` runs as a single Node.js process with no built-in
+clustering. All 200 requests queue on that one process's event loop for
+their SSR work. A single request to the same page takes 75ms; at 20
+concurrent VUs the same page's p95 is 701ms; at 200 it's 7,819ms --
+that's the signature of serialization on one process, not a fundamentally
+slow page. This sandbox also runs the k6 load generator on the same
+4-core machine as the server under test, which a correct load test setup
+avoids (the generator and the target compete for CPU, inflating server-
+side latency further).
+
+**Vercel does not run your app as a single long-lived Node process.**
+Each request to a dynamic route is handled by Vercel's own scaling
+infrastructure, which is built for exactly this kind of concurrent-
+request fan-out. This sandbox's 7.8s number is very unlikely to
+reproduce on Vercel, but I can't prove that without testing against
+Vercel -- which this environment can't do (no live deployment). The
+`/api/stock`, `GET /checkout`, and `POST /checkout` numbers above are
+lighter-weight (JSON responses, no full product-page React render) and
+plausibly hold up fine regardless of hosting model.
+
+**Before your first real drop:** re-run this exact load test
+(`k6 run -e BASE_URL=https://your-preview-url.vercel.app -e VARIANT_ID=...`)
+against a real Vercel preview or production deployment, from a machine
+that isn't also running the app, and look specifically at
+`drop_page_duration`'s p95. If it's still high there, that's a real
+finding worth investigating (e.g. whether `/drops/[slug]`'s forced-dynamic
+requirement from the CSP nonce trade-off needs a lighter render, or a
+Vercel plan/region adjustment) -- not something this sandbox test alone
+can rule in or out.

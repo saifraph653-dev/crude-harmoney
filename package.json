@@ -12,7 +12,8 @@
     "db:start": "supabase start",
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
-    "prepare": "git config core.hooksPath .githooks"
+    "prepare": "git config core.hooksPath .githooks",
+    "load-test:seed": "node scripts/seed-load-test.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.3",
