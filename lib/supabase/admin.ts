@@ -1,12 +1,15 @@
+import "server-only";
 import { createClient } from "@supabase/supabase-js";
 
 /**
  * Service-role client. Bypasses RLS entirely -- this is the ONLY client
  * allowed to write orders/order_items/stock_reservations/webhook_events,
  * per the project's "all writes to orders happen server-side with the
- * service-role key" rule. Never import this from a client component; the
- * runtime check below is a stopgap until the build-time assertion lands
- * (see the security-headers step).
+ * service-role key" rule. The `server-only` import above is the build-
+ * time assertion: it fails the build if this module (or anything that
+ * imports it, transitively) ever ends up in a client bundle. The runtime
+ * `window` check below is defense in depth on top of that, not a
+ * substitute for it.
  */
 export function createAdminClient() {
   if (typeof window !== "undefined") {

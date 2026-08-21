@@ -1,8 +1,17 @@
+import { connection } from "next/server";
 import Image from "next/image";
 import Link from "next/link";
 import { getDropProducts } from "@/lib/products";
 
+// Forced dynamic (connection()) so the CSP nonce (proxy.ts) actually
+// reaches this page's script tags -- nonces only get injected during
+// per-request SSR, never into a build-time static shell. The data itself
+// still comes from getDropProducts()'s "use cache" call, so this still
+// never hits Postgres directly; see SECURITY.md and next.config.ts.
+export const instant = false;
+
 export default async function DropsPage() {
+  await connection();
   const products = await getDropProducts();
 
   return (

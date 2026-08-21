@@ -5,13 +5,17 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { POST as lookupHandler } from "@/app/api/orders/lookup/route";
 
 const LOOKUP_URL = "http://localhost/api/orders/lookup";
+// .env.local's TURNSTILE_SECRET_KEY is Cloudflare's published "always
+// passes" test key -- any non-empty response string verifies successfully
+// against the real siteverify endpoint (see lib/turnstile.ts).
+const VALID_TURNSTILE_TOKEN = "test-token";
 
-function postLookup(body: unknown) {
+function postLookup(body: Record<string, unknown>) {
   return lookupHandler(
     new NextRequest(LOOKUP_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: typeof body === "string" ? body : JSON.stringify(body),
+      body: JSON.stringify({ turnstileToken: VALID_TURNSTILE_TOKEN, ...body }),
     }),
   );
 }
@@ -93,9 +97,15 @@ describe("order lookup", () => {
     const extraField = await postLookup({ orderNumber, email, extra: "field" }).then((r) =>
       r.json(),
     );
+    const missingTurnstileToken = await postLookup({
+      orderNumber,
+      email,
+      turnstileToken: "",
+    }).then((r) => r.json());
 
     expect(nonexistent).toEqual({ found: false });
     expect(wrongEmail).toEqual({ found: false });
+    expect(missingTurnstileToken).toEqual({ found: false });
     expect(malformed).toEqual({ found: false });
     // .strict() rejects the unknown "extra" key entirely, same shape.
     expect(extraField).toEqual({ found: false });

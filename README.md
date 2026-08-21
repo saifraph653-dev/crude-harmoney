@@ -88,25 +88,40 @@ This project uses [Cache Components](https://nextjs.org/docs/app/api-reference/c
 model — not the older `export const revalidate = N` convention. Data
 functions in `lib/products.ts` are marked `"use cache"` with an explicit
 `cacheLife` (currently the `minutes` profile: revalidate every minute,
-hard-expire after an hour) so the drop pages are served as a static,
-cached shell with no database call in the request path. `generateStaticParams`
-prerenders every live product at build time; any other slug (e.g. one that
-goes live between deploys) gets an instant App Shell on first visit and is
-upgraded to a fully static page in the background for the next visitor.
+hard-expire after an hour), so product/drop data is served from Next's
+cache layer rather than a fresh Postgres query on every request.
 
-Live stock is deliberately excluded from that cache. `app/api/stock/route.ts`
-is an uncached route handler that reads `variants.stock_count` fresh on
-every call; the `<ProductBuyBox>` client component polls it every 10s after
-the cached page has loaded. Verify the split with `npm run build` — the
-route summary should show `/drops` and `/drops/[known-slug]` as static (`○`)
-and `/api/stock` as dynamic (`ƒ`).
+**Every page in the app is dynamically rendered** (`ƒ` in `npm run
+build`'s route summary), including `/drops` — this changed in the
+security-headers step and is a deliberate, discussed trade-off, not an
+oversight. Next's nonce-based CSP (see SECURITY.md) can only inject a
+nonce into framework script tags during per-request server-side
+rendering, never into a build-time static shell, so nonces and Partial
+Prerendering's static shell are mutually exclusive. `/drops` therefore
+lost CDN-edge full-page caching (a request now always invokes a
+function), but **not** the "no database call in the critical render
+path" property: `"use cache"` caching and page-level static/dynamic
+rendering are orthogonal in this model, so `getDropProducts()` etc.
+still serve from cache, not Postgres, regardless of the page being
+dynamic. Verified by curling every route and confirming the `<script>`
+tags' nonces match the response header on every single one — see
+SECURITY.md's CSP section for the exact commands.
 
-The checkout pages (`/checkout` and friends) are marked `export const
-instant = false` — they read `searchParams` and do an always-fresh DB
-read by design, so they're opted out of the "must produce a static
-shell" prerender check rather than restructured to fit it. They don't
-benefit from caching the way `/drops` does: each is visited once per
-purchase attempt, not once per browsing session.
+Live stock is separately, deliberately never cached at all.
+`app/api/stock/route.ts` is an uncached route handler that reads
+`variants.stock_count` fresh on every call; the `<ProductBuyBox>` client
+component polls it every 10s after the page has loaded.
+
+The checkout pages (`/checkout` and friends), `/orders/lookup`, `/`, and
+`/drops`/`/drops/[slug]` are all marked `export const instant = false`
+and forced dynamic via `connection()` and/or reading a runtime API
+(`params`/`searchParams`/`headers()`) — opting out of the "must produce
+a static shell" prerender check rather than fighting it. `app/not-found.tsx`,
+`app/error.tsx`, and `app/global-error.tsx` are custom (not Next's
+built-in versions) for the same reason, plus one more: Next's default
+error pages render an inline `style="..."` attribute that the CSP can't
+allow without a broader exception than the one already made for
+`next/image` (see SECURITY.md).
 
 ## Checkout and stock reservation
 
@@ -239,15 +254,73 @@ templating engine.
 `/orders/lookup` — guest customers look up an order with order number +
 email, matching the "no accounts" design (see SECURITY.md's "Order
 lookup" section for why every response is identical regardless of
-whether the order exists). The page itself
-(`app/orders/lookup/page.tsx`) is fully static (no dynamic data access);
-`components/OrderLookupForm.tsx` is a client component that POSTs to
+whether the order exists, was rejected by Turnstile, or was rate
+limited). `components/OrderLookupForm.tsx` is a client component that
+renders the Turnstile widget, then POSTs to
 `app/api/orders/lookup/route.ts` and renders whatever comes back.
+Protected by rate limiting and Cloudflare Turnstile (below) plus the
+generic-response/artificial-delay design from the previous step.
 
-**Not yet protected by rate limiting or Turnstile** -- both land in the
-next step. Don't rely on this endpoint's current protections (generic
-response + artificial delay) as the only defense in production; they're
-real but partial until step 6 lands.
+## Security headers (CSP, HSTS, etc.)
+
+See SECURITY.md's "Content-Security-Policy" and "Other security
+headers" sections for the full design and how to verify each one --
+summary here is just where things live and what to configure.
+
+`proxy.ts` sets a nonce-based `Content-Security-Policy` on every
+request (fresh nonce per request, no `unsafe-inline` in `script-src`).
+This is why every page in the app is now dynamically rendered -- see
+"Caching model" above. `next.config.ts`'s `headers()` sets everything
+else (HSTS, `X-Content-Type-Options`, `Referrer-Policy`,
+`Permissions-Policy`, `X-Frame-Options`) since those don't need a
+per-request value.
+
+Nothing to configure for local dev here. In production, once a real
+payment adapter replaces `MockPaymentAdapter`, add that provider's
+hosted-checkout domain to `proxy.ts`'s `script-src`/`frame-src` (marked
+with a `TODO` comment at the top of the file).
+
+## Rate limiting
+
+[Upstash Redis](https://upstash.com) (REST API, no persistent
+connection needed -- works from serverless/edge functions). Set
+`UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` from an Upstash
+database's REST API credentials. If either is unset, rate limiting is
+disabled with a console warning rather than breaking checkout/lookup/
+webhook -- **this must be configured before a real launch**, it is not
+optional in production. See SECURITY.md's "Rate limiting" section for
+the exact limits per endpoint and why.
+
+## Cloudflare Turnstile
+
+Used on `/orders/lookup` only. Create a Turnstile widget at
+[the Cloudflare dashboard](https://dash.cloudflare.com/?to=/:account/turnstile)
+for your real domain, then set `NEXT_PUBLIC_TURNSTILE_SITE_KEY` (public
+by design) and `TURNSTILE_SECRET_KEY` (server-only).
+
+For local dev, Cloudflare publishes real, live test key pairs that work
+against the actual Turnstile API without needing an account -- already
+set in `.env.local`:
+
+```
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=1x00000000000000000000AA
+TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA
+```
+
+This pair always passes verification. Cloudflare also publishes an
+"always fails" pair (`2x00000000000000000000AB` /
+`2x0000000000000000000000000000000AA`) useful for testing the rejection
+path -- see `tests/turnstile.test.ts`. Full list:
+https://developers.cloudflare.com/turnstile/troubleshooting/testing/.
+
+## Cloudflare in front of the domain (bot management during drops)
+
+Not application code -- an infrastructure/DNS step for when the domain
+goes live. Point the domain's DNS through Cloudflare (proxied, orange-
+cloud) and enable Cloudflare's bot management / rate limiting rules
+during drop windows as an additional layer in front of the app-level
+rate limiting above. Not yet done since there's no live domain yet;
+tracked here so it isn't forgotten before the first real drop.
 
 ## Tests
 
@@ -295,18 +368,47 @@ Postgres and to the local PostgREST API). Currently covers:
   — the template function (pure, no network) includes the order
   number/items/total in both HTML and plain text, and HTML-escapes a
   shipping name containing `<script>` rather than passing it through raw.
+- **Security headers** (`tests/security-headers.test.ts`) — calls
+  `proxy()` and `next.config.ts`'s `headers()` directly: nonce-based
+  non-unsafe-inline `script-src`, `frame-ancestors 'none'`, `base-uri
+  'self'`, a fresh nonce every call, and every static header
+  (HSTS/nosniff/Referrer-Policy/Permissions-Policy/X-Frame-Options) with
+  the right value. See SECURITY.md for the manual, real-server
+  verification this doesn't (and can't, at the unit level) replace.
+- **Rate limiting** (`tests/rate-limit.test.ts`) — IP extraction from
+  `x-forwarded-for`/`x-real-ip`, and the fail-open behavior with no
+  limiter configured (this test environment's actual state).
+- **Turnstile** (`tests/turnstile.test.ts`) — calls the real Cloudflare
+  `siteverify` endpoint (not mocked) with both of Cloudflare's published
+  test secrets, confirming the "always passes"/"always fails" pairs
+  behave as documented, plus fail-closed on a missing token or secret.
 
 ## Deployment (Vercel)
 
 Not yet documented in full — still waiting on a real payment adapter
 (only `MockPaymentAdapter` exists so far) before there's an actual
-deployment worth walking through end to end. Env vars needed once you do
-deploy: everything in `.env.example`, set in Vercel's Project Settings →
-Environment Variables. `NEXT_PUBLIC_SITE_URL` must be the real production
-origin (not `localhost`) since it's baked into the payment provider's
-successUrl/cancelUrl. `CRON_SECRET` and `PAYMENT_MOCK_WEBHOOK_SECRET`
-(or whatever secret the real provider issues once wired in) should each
-be a random 16+ character string, generated with `openssl rand -hex 32`.
+deployment worth walking through end to end. Checklist for when you do:
+
+1. Set every variable in `.env.example` in Vercel's Project Settings →
+   Environment Variables.
+2. `NEXT_PUBLIC_SITE_URL` must be the real production origin (not
+   `localhost`) -- it's baked into the payment provider's successUrl/
+   cancelUrl.
+3. `CRON_SECRET` and `PAYMENT_MOCK_WEBHOOK_SECRET` (or whatever secret
+   the real provider issues once wired in): random 16+ character
+   strings, `openssl rand -hex 32`.
+4. **`UPSTASH_REDIS_REST_URL`/`UPSTASH_REDIS_REST_TOKEN` -- do not skip
+   this.** Rate limiting silently no-ops without it (see SECURITY.md);
+   the app will work but checkout/lookup/webhook will be unprotected
+   against volume abuse.
+5. `NEXT_PUBLIC_TURNSTILE_SITE_KEY`/`TURNSTILE_SECRET_KEY` from a real
+   Turnstile widget registered for the production domain -- the
+   published test keys only work because Cloudflare's API always
+   returns the same canned result for them, they provide zero real bot
+   protection.
+6. Point the domain's DNS through Cloudflare (proxied) and enable bot
+   management for drop windows -- see "Cloudflare in front of the
+   domain" above.
 
 ## Payment provider setup (Apple Pay domain verification)
 

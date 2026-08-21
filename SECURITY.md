@@ -454,3 +454,240 @@ customer-supplied free text.
 3. Manually, once Resend is configured: run the "Simulating a payment
    locally" recipe from README and check the inbox for `RESEND_FROM_EMAIL`'s
    configured recipient.
+
+## Content-Security-Policy: nonces, no unsafe-inline (with one narrow, documented exception)
+
+**Control:** `proxy.ts` generates a fresh, unique nonce on every request
+and sets a `Content-Security-Policy` header with `script-src 'self'
+'nonce-<value>' 'strict-dynamic' https://challenges.cloudflare.com`
+(the Cloudflare domain is for the Turnstile widget script; nothing else
+is allowlisted). No `'unsafe-inline'` in `script-src`, ever.
+`frame-ancestors 'none'` and `base-uri 'self'` are also set.
+
+**A conflict I found and flagged rather than silently resolving:**
+Next.js's own docs state nonce-based CSP requires every page to be
+dynamically rendered, and is flatly incompatible with Partial
+Prerendering -- exactly the mechanism the `/drops` static-shell caching
+from the product-pages step relied on. I stopped and asked before
+proceeding; the resolution chosen was "nonces everywhere, accept dynamic
+rendering." Concretely:
+
+- Every page (`/`, `/drops`, `/drops/[slug]`, `/orders/lookup`,
+  `/checkout` and its sub-pages, the custom `not-found`/`error`/
+  `global-error` pages) is forced dynamic, via `connection()` and/or
+  reading a runtime API (`params`, `searchParams`, `headers()`) plus
+  `export const instant = false` to opt out of the "must produce a
+  static shell" build validation.
+- This does **not** reintroduce a database call in the critical render
+  path. `lib/products.ts`'s `"use cache"`-wrapped data functions still
+  serve from Next's cache layer regardless of whether the calling page
+  is statically or dynamically rendered -- "use cache" caching and
+  page-level static/dynamic rendering are orthogonal in Next's Cache
+  Components model. What's actually lost is CDN-edge full-page caching
+  (Vercel serving the static HTML with zero function invocation) --
+  every request now invokes a function, but that function still doesn't
+  touch Postgres for product/drop data.
+- **Verified empirically, not just reasoned about:** built and ran the
+  app with a live local Supabase stack, then for every route (including
+  the not-found page, the mock payment page, and every checkout step)
+  curled it and diffed every `<script>` tag's `nonce="..."` attribute
+  against that same response's `Content-Security-Policy` header nonce.
+  Zero mismatches across every route, on every check. `npm run build`'s
+  route summary before/after this change is also directly comparable
+  (`○`/`◐` → `ƒ` on every page except two dynamic-segment routes that
+  stayed `◐` Partial Prerender for framework-internal reasons but still
+  produce 100%-matching nonces when checked the same way).
+
+**The one documented exception:** `style-src` is `'self' 'unsafe-inline'`
+with **no** nonce. `next/image` unconditionally sets an inline
+`style="color:transparent"` attribute on every `<img>` it renders
+(`get-img-props.js` in the Next.js source -- there is no supported prop
+to disable it), and CSP nonces do not cover inline style *attributes* at
+all, only `<style nonce="...">` blocks. This codebase has zero inline
+`<style>` blocks (verified by grepping every route's rendered HTML), so
+the actual exposure of this exception is nil beyond that one
+framework-fixed, non-attacker-controllable value. `script-src` has no
+such exception and stays strictly nonce-based -- CSS injection and
+script injection are not remotely comparable severities, which is the
+entire reason strict CSPs commonly draw this exact line.
+
+**Where:** `proxy.ts` (CSP + nonce generation), `next.config.ts`
+(everything else, see below), `app/not-found.tsx`/`app/error.tsx`/
+`app/global-error.tsx` (custom, because Next's built-in versions render
+inline `style="..."` attributes that would need the same exception).
+
+**How to verify:**
+
+1. `npm test` runs `tests/security-headers.test.ts`, which calls
+   `proxy()` directly and asserts: a nonce-based, non-unsafe-inline
+   `script-src`; `frame-ancestors 'none'`; `base-uri 'self'`; a fresh
+   nonce on every call.
+2. Manually (the real end-to-end check, not just the unit-level one).
+   Must be a **single** request captured to both a headers file and a
+   body file -- a fresh nonce is generated on every request, so two
+   separate `curl` calls will always "mismatch" even when nothing is
+   wrong:
+   ```bash
+   curl -s -D /tmp/h.txt -o /tmp/b.html "$APP_URL/drops"
+   NONCE=$(grep -i content-security-policy /tmp/h.txt | grep -oE 'nonce-[A-Za-z0-9+/=]+' | head -1 | sed 's/nonce-//')
+   grep -oE '<script[^>]*>' /tmp/b.html | grep -v "nonce=\"$NONCE\""
+   # must print nothing -- every script tag's nonce must match the header's
+   ```
+   Repeat for every route you add in the future; this is the actual
+   contract the nonce mechanism depends on, and it's easy to silently
+   break by introducing a new static page.
+
+## Other security headers
+
+**Control:** set in `next.config.ts`'s `headers()` (static, no
+per-request value needed, unlike the CSP):
+
+- `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload`
+- `X-Content-Type-Options: nosniff`
+- `Referrer-Policy: strict-origin-when-cross-origin`
+- `Permissions-Policy: camera=(), microphone=(), geolocation=()`
+- `X-Frame-Options: DENY` (redundant with the CSP's `frame-ancestors
+  'none'` in modern browsers, kept for older tooling/scanners)
+
+**Where:** `next.config.ts`.
+
+**How to verify:** `npm test` runs the "Static security headers" suite
+in `tests/security-headers.test.ts`, which imports `next.config.ts` and
+asserts each header's value directly. Manually:
+`curl -sI $APP_URL/ | grep -iE "strict-transport|x-content-type|referrer-policy|permissions-policy|x-frame-options"`.
+
+**HTTPS enforcement:** not something application code does -- Vercel
+terminates TLS and redirects HTTP→HTTPS automatically for every
+deployment; HSTS above is what tells browsers to skip the plaintext
+round-trip entirely on subsequent visits.
+
+## Build-time assertion: server-only code never reaches a client bundle
+
+**Control:** every module that reads a server-only secret
+(`lib/supabase/admin.ts`, `lib/turnstile.ts`, `lib/rate-limit.ts`,
+`lib/email/send-order-confirmation.ts`) starts with `import
+"server-only"`. That package resolves to a no-op in a server bundle and
+to a module that unconditionally throws in a client one -- Next's
+bundler treats this as a hard build error (not a lint warning) the
+moment such a module is reachable from a `"use client"` component,
+including transitively. `lib/supabase/admin.ts`'s runtime
+`typeof window !== "undefined"` check is defense in depth on top of
+this, not a substitute -- the build-time check catches the mistake
+before any code ships, the runtime check is what happens if it somehow
+still got shipped.
+
+**Where:** the `import "server-only"` line at the top of each file
+listed above.
+
+**How to verify:**
+
+1. Automated: `npm run build` itself is the test -- if any of those
+   modules were ever imported from a client component, the build fails
+   with an explicit import trace naming the offending file. There's no
+   separate passing/failing test to run; a green build **is** the
+   assertion holding.
+2. To prove the assertion actually catches something (not just that it
+   compiles today): temporarily create a `"use client"` page that
+   imports `createAdminClient` from `lib/supabase/admin.ts` and run
+   `npm run build` -- it must fail with `Error: 'server-only' cannot be
+   imported from a Client Component module` and an import trace. This
+   was done during development to confirm the mechanism actually works,
+   not just that the import line is present.
+
+## Rate limiting
+
+**Control:** IP-based rate limiting (Upstash Redis, sliding window) on
+the three endpoints the brief calls out: checkout-session creation (10/
+min/IP), order lookup (5/min/IP -- the hardest limit, since it's the one
+enumerable endpoint), and the payment webhook (60/min/IP -- generous,
+since a legitimate provider catching up after downtime sends a burst of
+retries that must not get throttled into failure). A limited request
+gets `429` with a `Retry-After` header; nothing about the response
+leaks any information about orders (contrast with the order-lookup
+`{"found":false}` responses, which are deliberately uninformative for a
+different reason).
+
+**Fails open when unconfigured**, same pattern as Resend/the payment
+adapter: if `UPSTASH_REDIS_REST_URL`/`UPSTASH_REDIS_REST_TOKEN` aren't
+set, `checkRateLimit` logs a console warning and allows every request.
+**This is a real gap if it ships to production unconfigured** -- see the
+README deployment checklist, which calls this out explicitly as a
+must-configure-before-launch item, not an optional nicety.
+
+**Where:** `lib/rate-limit.ts`, called from `app/checkout/actions.ts`,
+`app/api/orders/lookup/route.ts`, `app/api/webhooks/payment/route.ts`.
+
+**How to verify:**
+
+1. `tests/rate-limit.test.ts` covers the IP-extraction logic
+   (`x-forwarded-for` first entry, `x-real-ip` fallback, `"unknown"` if
+   neither) and the fail-open behavior with no limiter configured
+   (exactly the state of this test environment and local dev).
+2. Actual blocking behavior needs a real Upstash-backed limiter, which
+   this environment doesn't have -- verify manually once
+   `UPSTASH_REDIS_REST_URL`/`TOKEN` are configured: script N+1 rapid
+   requests to `/api/orders/lookup` from the same IP where N is the
+   configured limit, confirm the last one returns 429 with a
+   `Retry-After` header.
+
+## Cloudflare Turnstile on order lookup
+
+**Control:** `app/api/orders/lookup/route.ts` requires a valid Turnstile
+token (verified server-side against Cloudflare's real `siteverify`
+endpoint) before doing anything else with the request -- a missing or
+failed token produces the exact same `{"found":false}` response as a
+nonexistent order, keeping the anti-enumeration property intact (a bot
+probing the endpoint can't distinguish "you're not human" from "that
+order doesn't exist" from "that email doesn't match").
+
+**No fail-open/skip-if-unconfigured path**, unlike Resend/Upstash --
+Cloudflare publishes real, live test key pairs specifically for local
+dev/testing without a Cloudflare account (see `.env.example`), so
+there's no scenario where Turnstile verification needs to be bypassed.
+An empty/missing secret or token is treated as verification failure.
+
+**Where:** `lib/turnstile.ts` (verification), `app/api/orders/lookup/route.ts`
+(enforcement), `components/OrderLookupForm.tsx` (widget, explicit-render
+mode so it plays correctly with React instead of implicit auto-render
+fighting the virtual DOM), `app/orders/lookup/page.tsx` (reads the CSP
+nonce via `headers()` and passes it to the Turnstile `<Script>` tag --
+required, since `script-src` has no exception and the widget script
+must carry a valid nonce like every other script on the site).
+
+**How to verify:**
+
+1. `tests/turnstile.test.ts` calls `verifyTurnstileToken` against the
+   real Cloudflare endpoint with both published test secrets --
+   Cloudflare's "always passes" pair returns `true`, the "always fails"
+   pair returns `false`, and a missing token/secret both fail closed.
+   `tests/order-lookup.test.ts` confirms a missing `turnstileToken`
+   produces the same generic `{"found":false}` as every other rejection
+   path.
+2. Manually: load `/orders/lookup` in a real browser with real
+   Turnstile keys configured and confirm the widget renders and the
+   submit button is disabled until it completes.
+
+## Dependencies
+
+**Control:** `.github/workflows/ci.yml` runs `npm audit --audit-level=high`
+on every push/PR, in addition to lint and build. `.github/dependabot.yml`
+opens weekly PRs for outdated npm packages and GitHub Actions.
+`package-lock.json` is committed (already true from the first commit --
+`npm install` always produces one) and dependency versions are pinned in
+`package.json` the way `npm install <pkg>` leaves them by default (caret
+ranges resolved and locked via the committed lockfile), not loosened.
+
+**Not yet wired into CI:** the RLS/no-oversell/webhook/order-lookup test
+suite, since it needs a live local Supabase stack (Postgres + PostgREST
+via Docker), which adds real setup complexity to a GitHub Actions job.
+`ci.yml`'s build job runs with dummy Supabase env vars just to prove the
+app compiles; it does not exercise the database-backed tests. Run those
+locally per this README until that gap is closed.
+
+**Where:** `.github/workflows/ci.yml`, `.github/dependabot.yml`.
+
+**How to verify:** check the "Actions" tab on the repo after any push --
+both the `gitleaks` and `CI` workflows should be green.
+`npm audit --audit-level=high` locally should print `found 0
+vulnerabilities` (or whatever the current count is, if a new advisory
+has landed since this was written).

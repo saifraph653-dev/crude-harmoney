@@ -5,6 +5,14 @@ import nextTs from "eslint-config-next/typescript";
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
+  {
+    // React already escapes output by default; dangerouslySetInnerHTML
+    // is the one way to opt out of that, so it's banned outright rather
+    // than reviewed case-by-case.
+    rules: {
+      "react/no-danger": "error",
+    },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:

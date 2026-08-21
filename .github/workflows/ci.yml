@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+        env:
+          # Dummy values -- this job only needs the build to compile and
+          # the static parts of next.config.ts/proxy.ts to run; it doesn't
+          # touch a real database. The RLS/concurrency/webhook/lookup
+          # test suite needs a live local Supabase stack (Postgres +
+          # PostgREST) and isn't wired into CI yet -- see README's
+          # "Tests" section for running it locally in the meantime.
+          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-build-placeholder
+          SUPABASE_SERVICE_ROLE_KEY: ci-build-placeholder
+          NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      - run: npm audit --audit-level=high

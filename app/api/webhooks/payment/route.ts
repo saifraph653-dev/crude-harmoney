@@ -2,11 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getPaymentAdapter } from "@/lib/payments";
 import { processPaymentWebhookEvent } from "@/lib/webhook-processing";
+import { checkRateLimit, getClientIp, webhookRateLimit } from "@/lib/rate-limit";
 
-// Rate limiting on this endpoint lands in the security-headers step
-// (Upstash), per the brief's "rate limit checkout-session creation,
-// order lookup, and the webhook endpoint" requirement.
-//
 // Response codes:
 //  - 401: signature missing/invalid. The one case we actually reject at
 //    the transport level, since it means either misconfiguration or a
@@ -19,6 +16,15 @@ import { processPaymentWebhookEvent } from "@/lib/webhook-processing";
 //    Returning non-200 for a permanent failure would just cause the
 //    provider to retry-storm us with the exact same bad data forever.
 export async function POST(request: NextRequest) {
+  const clientIp = getClientIp((name) => request.headers.get(name));
+  const rateLimitResult = await checkRateLimit(webhookRateLimit, clientIp);
+  if (!rateLimitResult.allowed) {
+    return NextResponse.json(
+      { error: "rate_limited" },
+      { status: 429, headers: { "Retry-After": String(rateLimitResult.retryAfterSeconds) } },
+    );
+  }
+
   // Raw text FIRST -- signature verification is over the exact bytes the
   // provider signed. Parsing (even implicitly, e.g. request.json()) here
   // would break that for any provider that signs the raw body.

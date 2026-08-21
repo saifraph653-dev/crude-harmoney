@@ -28,6 +28,7 @@ const RESERVATION_ERROR_MESSAGES: Record<string, string> = {
   variant_not_found: "That size doesn't exist.",
   invalid_quantity: "Please choose a valid quantity.",
   invalid_input: "Please check your details and try again.",
+  rate_limited: "Too many attempts. Please wait a moment and try again.",
 };
 
 export function mapReservationError(message: string | undefined): string {

@@ -1,27 +1,19 @@
-import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getLiveProductSlugs, getProductDetailBySlug } from "@/lib/products";
+import { getProductDetailBySlug } from "@/lib/products";
 import { ProductBuyBox } from "@/components/ProductBuyBox";
 
-export async function generateStaticParams() {
-  const slugs = await getLiveProductSlugs();
-  return slugs.map((slug) => ({ slug }));
-}
+// Forced dynamic (params access is a runtime API) so the CSP nonce
+// (proxy.ts) reaches this page's script tags. generateStaticParams and
+// the Suspense/ISR-upgrade pattern from before this step no longer apply
+// -- with no static shell at all, there's nothing to upgrade. The product
+// data itself still comes from getProductDetailBySlug()'s "use cache"
+// call, so this still never hits Postgres directly; see SECURITY.md.
+export const instant = false;
 
-export default function ProductPage(props: PageProps<"/drops/[slug]">) {
-  return (
-    <Suspense fallback={<ProductSkeleton />}>
-      <ProductDetail params={props.params} />
-    </Suspense>
-  );
-}
-
-async function ProductDetail({
-  params,
-}: Pick<PageProps<"/drops/[slug]">, "params">) {
-  const { slug } = await params;
+export default async function ProductPage(props: PageProps<"/drops/[slug]">) {
+  const { slug } = await props.params;
   const product = await getProductDetailBySlug(slug);
 
   if (!product) notFound();
@@ -59,20 +51,6 @@ async function ProductDetail({
               <p className="text-sm text-zinc-500">No longer available.</p>
             )}
           </div>
-        </div>
-      </div>
-    </main>
-  );
-}
-
-function ProductSkeleton() {
-  return (
-    <main className="mx-auto max-w-3xl px-6 py-12">
-      <div className="mt-4 grid gap-8 sm:grid-cols-2">
-        <div className="aspect-square animate-pulse rounded bg-zinc-100 dark:bg-zinc-900" />
-        <div className="space-y-3">
-          <div className="h-6 w-2/3 animate-pulse rounded bg-zinc-100 dark:bg-zinc-900" />
-          <div className="h-4 w-full animate-pulse rounded bg-zinc-100 dark:bg-zinc-900" />
         </div>
       </div>
     </main>

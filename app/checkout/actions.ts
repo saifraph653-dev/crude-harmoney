@@ -1,12 +1,21 @@
 "use server";
 
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getPaymentAdapter } from "@/lib/payments";
 import { getSiteUrl } from "@/lib/site-url";
 import { checkoutFormSchema, reservationErrorCode } from "@/lib/checkout";
+import { checkRateLimit, checkoutRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function submitCheckout(formData: FormData) {
+  const headerList = await headers();
+  const clientIp = getClientIp((name) => headerList.get(name));
+  const rateLimitResult = await checkRateLimit(checkoutRateLimit, clientIp);
+  if (!rateLimitResult.allowed) {
+    redirect(checkoutRedirect(formData, "rate_limited"));
+  }
+
   const parsed = checkoutFormSchema.safeParse({
     variantId: formData.get("variantId"),
     quantity: formData.get("quantity"),

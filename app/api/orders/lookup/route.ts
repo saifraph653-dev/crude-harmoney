@@ -1,20 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { checkRateLimit, getClientIp, orderLookupRateLimit } from "@/lib/rate-limit";
+import { verifyTurnstileToken } from "@/lib/turnstile";
 
 // Order lookup is the one enumerable endpoint in this app -- an order
 // number is a small, guessable sequence (CH-000001, CH-000002, ...) and
 // pairing it with an email is exactly how a guest customer legitimately
 // looks up their own order. Everything here is built around the same
-// rule: whether the input is malformed, the order doesn't exist, or the
-// order exists but the email doesn't match, the response must be
-// byte-for-byte identical and take the same amount of time. Otherwise
-// this becomes an oracle for enumerating valid order numbers or emails.
+// rule: whether the input is malformed, the Turnstile check failed, the
+// order doesn't exist, or the order exists but the email doesn't match,
+// the response must be byte-for-byte identical and take the same amount
+// of time. Otherwise this becomes an oracle for enumerating valid order
+// numbers or emails (or for probing which of those checks failed).
 //
-// Rate limiting and Cloudflare Turnstile land in the security-headers
-// step, per the brief -- the artificial delay here is a separate,
-// complementary control (defends the single-request timing side channel;
-// rate limiting defends volume).
+// Rate limiting (hardest of any endpoint in this app, per the brief) is
+// the one intentionally distinct response -- a 429 doesn't leak anything
+// about order data, and a real human needs to know to slow down rather
+// than conclude their order doesn't exist.
 
 const ARTIFICIAL_DELAY_MS = 400;
 
@@ -22,6 +25,7 @@ const lookupSchema = z
   .object({
     orderNumber: z.string().trim().min(1).max(20),
     email: z.string().trim().min(1).max(254).email(),
+    turnstileToken: z.string().min(1),
   })
   .strict();
 
@@ -38,6 +42,15 @@ const NOT_FOUND = { found: false as const };
 
 export async function POST(request: NextRequest) {
   const startedAt = Date.now();
+  const clientIp = getClientIp((name) => request.headers.get(name));
+
+  const rateLimitResult = await checkRateLimit(orderLookupRateLimit, clientIp);
+  if (!rateLimitResult.allowed) {
+    return NextResponse.json(
+      { error: "rate_limited" },
+      { status: 429, headers: { "Retry-After": String(rateLimitResult.retryAfterSeconds) } },
+    );
+  }
 
   let body: unknown;
   try {
@@ -49,6 +62,12 @@ export async function POST(request: NextRequest) {
 
   const parsed = lookupSchema.safeParse(body);
   if (!parsed.success) {
+    await delayToFloor(startedAt);
+    return NextResponse.json(NOT_FOUND);
+  }
+
+  const turnstileOk = await verifyTurnstileToken(parsed.data.turnstileToken, clientIp);
+  if (!turnstileOk) {
     await delayToFloor(startedAt);
     return NextResponse.json(NOT_FOUND);
   }
