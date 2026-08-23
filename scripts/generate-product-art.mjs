@@ -60,6 +60,17 @@ const MARKS = {
     <path d="M34 -60 C104 -54 160 -26 196 16 C146 6 112 12 84 30 C112 46 128 68 136 96 C96 62 62 48 34 48 Z"/>
     <path d="M0 -116 L24 -80 L-24 -80 Z"/>`,
 
+
+  // Open hand. Fingers kept as separate rounded slabs with wide gaps --
+  // a literal hand outline has concave notches too tight for a blade.
+  hand: `
+    <path d="M-96 6 C-96 -26 -74 -46 -46 -46 L46 -46 C74 -46 96 -26 96 6 L96 76 C96 130 56 172 0 172 C-56 172 -96 130 -96 76 Z"/>
+    <rect x="-86" y="-152" width="40" height="118" rx="20"/>
+    <rect x="-30" y="-186" width="40" height="152" rx="20"/>
+    <rect x="26" y="-172" width="40" height="138" rx="20"/>
+    <rect x="80" y="-120" width="38" height="90" rx="19" transform="rotate(14 99 -75)"/>
+    <rect x="-150" y="-70" width="38" height="86" rx="19" transform="rotate(-22 -131 -27)"/>`,
+
   // Crown. Solid, symmetrical, generous interior angles -- the cleanest
   // of the set to cut, and it carries the "modern vintage" read without
   // needing fine detail.
@@ -201,17 +212,10 @@ const PIECES = [
     art: markGroup({ mark: "star", word: "DOHA", scale: 0.5, wordY: 170, wordSize: 18 }),
   },
   {
-    file: "slate-tee",
-    base: "#4e5a66", highlight: "#63707c", shadow: "#272e35",
-    ground: ["#1c2126", "#0b0d10"], ink: "#eef1f4",
-    art: markGroup({
-      mark: "crest",
-      scale: 0.5,
-      word: "EST. DOHA",
-      wordY: 176,
-      wordSize: 17,
-      inside: `<text x="0" y="34" text-anchor="middle" font-family="Helvetica,Arial,sans-serif" font-size="104" font-weight="700" letter-spacing="-4" fill="#4e5a66">CH</text>`,
-    }),
+    file: "vale-tee",
+    base: "#3a3d42", highlight: "#4c5057", shadow: "#1c1e21",
+    ground: ["#202226", "#0b0c0d"], ink: "#e6e2f0",
+    art: markGroup({ mark: "hand", word: "CRUDE HARMONY", scale: 0.44, wordY: 172, wordSize: 16 }),
   },
   {
     file: "ember-tee",

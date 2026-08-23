@@ -123,40 +123,40 @@
     ]
   },
   {
-    "slug": "slate-tee",
-    "name": "Slate Tee",
+    "slug": "vale-tee",
+    "name": "Vale Tee",
     "collection": "classic",
     "displayOrder": 4,
-    "description": "Blue-grey mid-weight with the CH crest set high on the chest. The quietest thing we make, and cut a touch closer through the body than the rest of the Classic range.",
+    "description": "Charcoal grey mid-weight carrying the open-hand mark in lavender-white. The quietest thing we make, cut a touch closer through the body than the rest of the Classic range.",
     "status": "coming_soon",
-    "imagePath": "/products/slate-tee.svg",
+    "imagePath": "/products/vale-tee.svg",
     "imageWidth": 1000,
     "imageHeight": 1000,
     "variants": [
       {
         "size": "S",
-        "sku": "CH-SLT-S",
+        "sku": "CH-VAL-S",
         "priceCents": 18000,
         "stockCount": 10,
         "sortOrder": 1
       },
       {
         "size": "M",
-        "sku": "CH-SLT-M",
+        "sku": "CH-VAL-M",
         "priceCents": 18000,
         "stockCount": 15,
         "sortOrder": 2
       },
       {
         "size": "L",
-        "sku": "CH-SLT-L",
+        "sku": "CH-VAL-L",
         "priceCents": 18000,
         "stockCount": 15,
         "sortOrder": 3
       },
       {
         "size": "XL",
-        "sku": "CH-SLT-XL",
+        "sku": "CH-VAL-XL",
         "priceCents": 18000,
         "stockCount": 8,
         "sortOrder": 4
