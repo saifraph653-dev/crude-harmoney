@@ -16,10 +16,11 @@ export function ProductGrid({
     <ul className={`grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-6 ${className}`}>
       {products.map((product) => {
         const ended = product.status === "ended";
+        const upcoming = product.status === "coming_soon";
         return (
           <li key={product.slug}>
             <Link href={`/drops/${product.slug}`} className="group block">
-              <div className="relative aspect-square overflow-hidden rounded-xl border border-border bg-surface">
+              <div className="card-frame">
                 {product.image ? (
                   <Image
                     src={product.image.path}
@@ -27,20 +28,20 @@ export function ProductGrid({
                     height={product.image.height}
                     alt={product.name}
                     sizes="(max-width: 640px) 50vw, 33vw"
-                    className={`h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03] ${
+                    className={`h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04] ${
                       ended ? "opacity-40 grayscale" : ""
                     }`}
                   />
                 ) : null}
 
                 {product.collection === "limited" && !ended ? (
-                  <span className="absolute top-2 left-2 rounded-full bg-accent px-2.5 py-1 text-[0.625rem] font-semibold tracking-wider text-accent-foreground uppercase">
+                  <span className="absolute top-2.5 left-2.5 rounded-full bg-accent px-2.5 py-1 text-[0.625rem] font-semibold tracking-wider text-accent-foreground uppercase">
                     Limited
                   </span>
                 ) : null}
 
                 {ended ? (
-                  <span className="absolute top-2 left-2 rounded-full border border-border-strong bg-background/80 px-2.5 py-1 text-[0.625rem] font-semibold tracking-wider text-muted uppercase">
+                  <span className="absolute top-2.5 left-2.5 rounded-full border border-border-strong bg-background/85 px-2.5 py-1 text-[0.625rem] font-semibold tracking-wider text-muted uppercase">
                     Sold out
                   </span>
                 ) : null}
@@ -49,9 +50,16 @@ export function ProductGrid({
               <p className="mt-3 text-sm font-medium transition-colors group-hover:text-accent">
                 {product.name}
               </p>
-              {product.fromPriceCents !== null ? (
+
+              {/* Before launch we show the intended price but never imply it
+                  can be bought right now. */}
+              {upcoming ? (
+                <p className="eyebrow mt-1">Coming soon</p>
+              ) : ended ? (
+                <p className="mt-0.5 text-sm text-subtle">—</p>
+              ) : product.fromPriceCents !== null ? (
                 <p className="mt-0.5 text-sm text-subtle">
-                  {ended ? "—" : formatPrice(product.fromPriceCents, product.currency)}
+                  {formatPrice(product.fromPriceCents, product.currency)}
                 </p>
               ) : null}
             </Link>

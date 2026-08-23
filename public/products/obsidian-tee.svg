@@ -1,62 +1,66 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" width="1000" height="1000" role="img" aria-label="obsidian-tee">
   <defs>
-    <linearGradient id="bg-obsidian-tee" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#7a7a84"/>
-      <stop offset="100%" stop-color="#42424a"/>
-    </linearGradient>
-    <!-- Fully opaque stops: an alpha stop here would let the backdrop
-         show through the garment and dissolve the hem. -->
-    <linearGradient id="fabric-obsidian-tee" x1="0.15" y1="0" x2="0.9" y2="1">
-      <stop offset="0%" stop-color="#232329"/>
-      <stop offset="55%" stop-color="#141417"/>
+    <radialGradient id="g-obsidian-tee" cx="0.5" cy="0.34" r="0.82">
+      <stop offset="0%" stop-color="#1d1d21"/>
+      <stop offset="100%" stop-color="#08080a"/>
+    </radialGradient>
+    <linearGradient id="f-obsidian-tee" x1="0.16" y1="0" x2="0.86" y2="1">
+      <stop offset="0%" stop-color="#242429"/>
+      <stop offset="54%" stop-color="#141416"/>
       <stop offset="100%" stop-color="#000000"/>
     </linearGradient>
-    <filter id="soft-obsidian-tee" x="-25%" y="-25%" width="150%" height="150%">
-      <feGaussianBlur stdDeviation="14"/>
+
+    <filter id="grain-obsidian-tee" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="7"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.05"/></feComponentTransfer>
+      <feComposite operator="in" in2="SourceGraphic"/>
     </filter>
-    <radialGradient id="sheen-obsidian-tee" cx="0.42" cy="0.3" r="0.62">
-      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.14"/>
-      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
-    </radialGradient>
-    <clipPath id="tee-obsidian-tee"><path d="M338 206 C300 214 262 230 236 250 C214 292 198 344 190 386 C214 404 244 416 272 420 C282 396 292 372 300 352 C296 480 296 660 300 806 C368 816 632 816 700 806 C704 660 704 480 700 352 C708 372 718 396 728 420 C756 416 786 404 810 386 C802 344 786 292 764 250 C738 230 700 214 662 206 C650 260 592 290 500 290 C408 290 350 260 338 206 Z"/></clipPath>
+    <filter id="weave-obsidian-tee" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="1.5" numOctaves="2" seed="3"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.08"/></feComponentTransfer>
+      <feComposite operator="in" in2="SourceGraphic"/>
+    </filter>
+    <filter id="soft-obsidian-tee" x="-25%" y="-25%" width="150%" height="150%">
+      <feGaussianBlur stdDeviation="17"/>
+    </filter>
+
+    <clipPath id="cloth-obsidian-tee"><path d="M338 196 C296 205 254 223 226 245 C202 291 184 348 175 394 C201 414 234 427 265 431 C276 405 287 379 296 357 C292 494 292 686 296 846 C370 857 630 857 704 846 C708 686 708 494 704 357 C713 379 724 405 735 431 C766 427 799 414 825 394 C816 348 798 291 774 245 C746 223 704 205 662 196 C649 254 587 286 500 286 C413 286 351 254 338 196 Z"/></clipPath>
   </defs>
 
-  <rect width="1000" height="1000" fill="url(#bg-obsidian-tee)"/>
+  <rect width="1000" height="1000" fill="url(#g-obsidian-tee)"/>
+  <rect width="1000" height="1000" filter="url(#grain-obsidian-tee)" fill="#ffffff"/>
 
-  <!-- soft floor shadow so the garment sits in the frame -->
-  <ellipse cx="500" cy="812" rx="235" ry="26" fill="#000" opacity="0.20"/>
+  <ellipse cx="500" cy="862" rx="256" ry="26" fill="#000" opacity="0.34" filter="url(#soft-obsidian-tee)"/>
 
   <g>
-    <path d="M338 206 C300 214 262 230 236 250 C214 292 198 344 190 386 C214 404 244 416 272 420 C282 396 292 372 300 352 C296 480 296 660 300 806 C368 816 632 816 700 806 C704 660 704 480 700 352 C708 372 718 396 728 420 C756 416 786 404 810 386 C802 344 786 292 764 250 C738 230 700 214 662 206 C650 260 592 290 500 290 C408 290 350 260 338 206 Z" fill="url(#fabric-obsidian-tee)" stroke="#000000" stroke-opacity="0.35" stroke-width="2"/>
-    <path d="M338 206 C352 248 414 270 500 270 C586 270 648 248 662 206 C632 192 570 184 500 184 C430 184 368 192 338 206 Z" fill="#0b0b0d"/>
-    <path d="M338 206 C352 248 414 270 500 270 C586 270 648 248 662 206 C632 192 570 184 500 184 C430 184 368 192 338 206 Z" fill="none" stroke="#000000" stroke-opacity="0.5" stroke-width="4"/>
+    <path d="M338 196 C296 205 254 223 226 245 C202 291 184 348 175 394 C201 414 234 427 265 431 C276 405 287 379 296 357 C292 494 292 686 296 846 C370 857 630 857 704 846 C708 686 708 494 704 357 C713 379 724 405 735 431 C766 427 799 414 825 394 C816 348 798 291 774 245 C746 223 704 205 662 196 C649 254 587 286 500 286 C413 286 351 254 338 196 Z" fill="url(#f-obsidian-tee)"/>
 
-    <g clip-path="url(#tee-obsidian-tee)">
-      <rect width="1000" height="1000" fill="url(#sheen-obsidian-tee)"/>
-      <!-- Fabric folds: wide, very soft, and low on the body. Kept faint
-           and blurred on purpose, because crisp dark strokes here read as
-           scratches on the artwork rather than as cloth. -->
+    <g clip-path="url(#cloth-obsidian-tee)">
+      <rect width="1000" height="1000" filter="url(#weave-obsidian-tee)" fill="#ffffff"/>
       <g filter="url(#soft-obsidian-tee)">
-        <path d="M352 566 C368 646 362 726 346 800" stroke="#000000" stroke-opacity="0.20" stroke-width="30" fill="none" stroke-linecap="round"/>
-        <path d="M648 566 C632 646 638 726 654 800" stroke="#000000" stroke-opacity="0.20" stroke-width="30" fill="none" stroke-linecap="round"/>
-        <path d="M500 640 C494 700 496 752 500 800" stroke="#000000" stroke-opacity="0.12" stroke-width="22" fill="none" stroke-linecap="round"/>
+        <path d="M356 590 C372 672 366 756 350 848" stroke="#000000" stroke-opacity="0.20" stroke-width="34" fill="none" stroke-linecap="round"/>
+        <path d="M644 590 C628 672 634 756 650 848" stroke="#000000" stroke-opacity="0.20" stroke-width="34" fill="none" stroke-linecap="round"/>
       </g>
-      <!-- sleeve hems -->
-      <path d="M272 420 C288 402 296 378 300 352" stroke="#000000" stroke-opacity="0.22" stroke-width="6" fill="none" stroke-linecap="round"/>
-      <path d="M728 420 C712 402 704 378 700 352" stroke="#000000" stroke-opacity="0.22" stroke-width="6" fill="none" stroke-linecap="round"/>
-      <!-- hem -->
-      <path d="M300 788 C400 798 600 798 700 788" stroke="#000000" stroke-opacity="0.28" stroke-width="6" fill="none"/>
+      <path d="M265 431 C282 410 291 383 296 357" stroke="#000000" stroke-opacity="0.24" stroke-width="6" fill="none" stroke-linecap="round"/>
+      <path d="M735 431 C718 410 709 383 704 357" stroke="#000000" stroke-opacity="0.24" stroke-width="6" fill="none" stroke-linecap="round"/>
+      <path d="M296 832 C400 843 600 843 704 832" stroke="#000000" stroke-opacity="0.26" stroke-width="6" fill="none"/>
     </g>
 
-    <!-- chest graphic -->
-    <g transform="translate(500 470)" fill="#c9a227" stroke="#c9a227">
-    <g fill="none" stroke-width="6">
-      <rect x="-110" y="-88" width="96" height="96"/>
-      <rect x="14" y="-88" width="96" height="96" transform="rotate(9 62 -40)"/>
-      <rect x="-110" y="26" width="96" height="96" transform="rotate(-7 -62 74)"/>
-      <rect x="14" y="26" width="96" height="96"/>
+    <path d="M338 196 L662 196 C649 254 587 286 500 286 C413 286 351 254 338 196 Z" fill="#000000" opacity="0.6"/>
+    <path d="M338 196 C351 254 413 286 500 286 C587 286 649 254 662 196 L648 196 C636 244 580 272 500 272 C420 272 364 244 352 196 Z" fill="#242429" opacity="0.5"/>
+
+    <g transform="translate(500 500)" fill="#c8a02b">
+    <g transform="scale(0.5)">
+      
+    <path d="M-170 -34 L-104 46 L-58 -86 L0 26 L58 -86 L104 46 L170 -34 L140 130 L-140 130 Z"/>
+    <rect x="-150" y="150" width="300" height="46" rx="8"/>
+    <circle cx="-170" cy="-58" r="24"/>
+    <circle cx="170" cy="-58" r="24"/>
+    <circle cx="0" cy="-108" r="26"/>
+      
     </g>
-    <path d="M-6 -110 L 6 130" stroke-width="9" stroke-linecap="round"/>
-    <text x="0" y="168" text-anchor="middle" font-family="Helvetica,Arial,sans-serif" font-size="18" letter-spacing="8" stroke="none">EDITION</text></g>
+    <text x="0" y="178" text-anchor="middle" font-family="Helvetica,Arial,sans-serif" font-size="16" font-weight="700" letter-spacing="6.7">NO RESTOCK</text></g>
   </g>
 </svg>

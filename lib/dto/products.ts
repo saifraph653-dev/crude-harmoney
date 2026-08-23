@@ -6,10 +6,13 @@ export type ProductImage = {
 
 export type Collection = "classic" | "limited";
 
+/** Publicly visible states. "coming_soon" is lookbook-only: shown, not sellable. */
+export type PublicStatus = "coming_soon" | "live" | "ended";
+
 export type ProductSummary = {
   slug: string;
   name: string;
-  status: "live" | "ended";
+  status: PublicStatus;
   collection: Collection;
   image: ProductImage | null;
   /** Lowest variant price, for the "from QAR X" label on grid cards. */

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-260 -260 520 520" width="520" height="520" role="img" aria-label="slate-tee artwork">
+  <!-- Single flat colour, solid shapes only: cut-ready. Recolour by
+       changing this one fill. -->
+  <g fill="#000000">
+    <g transform="scale(0.5)">
+      
+    <path d="M-118 -140 L118 -140 L118 26 C118 104 60 148 0 176 C-60 148 -118 104 -118 26 Z"/>
+      <text x="0" y="34" text-anchor="middle" font-family="Helvetica,Arial,sans-serif" font-size="104" font-weight="700" letter-spacing="-4" fill="#4e5a66">CH</text>
+    </g>
+    <text x="0" y="176" text-anchor="middle" font-family="Helvetica,Arial,sans-serif" font-size="17" font-weight="700" letter-spacing="7.1">EST. DOHA</text></g>
+</svg>

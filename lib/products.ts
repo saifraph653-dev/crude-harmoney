@@ -42,7 +42,7 @@ export async function getDropProducts(): Promise<ProductSummary[]> {
     .select(
       "slug, name, status, collection, currency, image_path, image_width, image_height, variants(price_cents)",
     )
-    .in("status", ["live", "ended"])
+    .in("status", ["coming_soon", "live", "ended"])
     .order("display_order", { ascending: true })
     .order("created_at", { ascending: false });
 
@@ -53,7 +53,7 @@ export async function getDropProducts(): Promise<ProductSummary[]> {
     return {
       slug: row.slug,
       name: row.name,
-      status: row.status as "live" | "ended",
+      status: row.status as ProductSummary["status"],
       collection: row.collection as ProductSummary["collection"],
       currency: row.currency,
       image: toImage(row),
@@ -74,7 +74,7 @@ export async function getProductDetailBySlug(slug: string): Promise<ProductDetai
       "id, slug, name, description, status, collection, currency, image_path, image_width, image_height",
     )
     .eq("slug", slug)
-    .in("status", ["live", "ended"])
+    .in("status", ["coming_soon", "live", "ended"])
     .maybeSingle();
 
   if (productError) throw new Error(`getProductDetailBySlug: ${productError.message}`);
@@ -100,7 +100,7 @@ export async function getProductDetailBySlug(slug: string): Promise<ProductDetai
     slug: product.slug,
     name: product.name,
     description: product.description,
-    status: product.status as "live" | "ended",
+    status: product.status as ProductDetail["status"],
     collection: product.collection as ProductDetail["collection"],
     currency: product.currency,
     image: toImage(product),

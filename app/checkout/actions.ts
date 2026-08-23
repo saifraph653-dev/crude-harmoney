@@ -5,15 +5,36 @@ import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getPaymentAdapter } from "@/lib/payments";
 import { getSiteUrl } from "@/lib/site-url";
-import { checkoutFormSchema, reservationErrorCode } from "@/lib/checkout";
+import {
+  checkoutFormSchema,
+  mapReservationError,
+  reservationErrorCode,
+  CHECKOUT_FIELD_NAMES,
+  type CheckoutFieldName,
+  type CheckoutState,
+} from "@/lib/checkout";
 import { checkRateLimit, checkoutRateLimit, getClientIp } from "@/lib/rate-limit";
 
-export async function submitCheckout(formData: FormData) {
+function readValues(formData: FormData): CheckoutState["values"] {
+  const values: CheckoutState["values"] = {};
+  for (const name of CHECKOUT_FIELD_NAMES) {
+    const raw = formData.get(name);
+    if (typeof raw === "string") values[name] = raw;
+  }
+  return values;
+}
+
+export async function submitCheckout(
+  _prevState: CheckoutState,
+  formData: FormData,
+): Promise<CheckoutState> {
+  const values = readValues(formData);
+
   const headerList = await headers();
   const clientIp = getClientIp((name) => headerList.get(name));
   const rateLimitResult = await checkRateLimit(checkoutRateLimit, clientIp);
   if (!rateLimitResult.allowed) {
-    redirect(checkoutRedirect(formData, "rate_limited"));
+    return { formError: mapReservationError("rate_limited"), fieldErrors: {}, values };
   }
 
   const parsed = checkoutFormSchema.safeParse({
@@ -30,7 +51,24 @@ export async function submitCheckout(formData: FormData) {
   });
 
   if (!parsed.success) {
-    redirect(checkoutRedirect(formData, "invalid_input"));
+    // Surface zod's per-field messages against the fields themselves,
+    // rather than collapsing everything into one generic banner.
+    const fieldErrors: CheckoutState["fieldErrors"] = {};
+    for (const issue of parsed.error.issues) {
+      const key = issue.path[0];
+      if (typeof key === "string" && (CHECKOUT_FIELD_NAMES as string[]).includes(key)) {
+        const name = key as CheckoutFieldName;
+        fieldErrors[name] ??= issue.message;
+      }
+    }
+    const hasFieldErrors = Object.keys(fieldErrors).length > 0;
+    return {
+      // If the only problems are in hidden fields (variantId/quantity),
+      // there's no field to point at -- fall back to the banner.
+      formError: hasFieldErrors ? null : mapReservationError("invalid_input"),
+      fieldErrors,
+      values,
+    };
   }
 
   const input = parsed.data;
@@ -54,7 +92,11 @@ export async function submitCheckout(formData: FormData) {
   });
 
   if (error || !data || data.length === 0) {
-    redirect(checkoutRedirect(formData, reservationErrorCode(error?.message)));
+    return {
+      formError: mapReservationError(reservationErrorCode(error?.message)),
+      fieldErrors: {},
+      values,
+    };
   }
 
   const order = data[0];
@@ -84,17 +126,8 @@ export async function submitCheckout(formData: FormData) {
     // 10 minutes if the customer can't proceed -- fail loud rather than
     // silently sending them to a payment page the order can't be matched
     // back to later.
-    redirect(checkoutRedirect(formData, "unknown"));
+    return { formError: mapReservationError("unknown"), fieldErrors: {}, values };
   }
 
   redirect(session.redirectUrl);
-}
-
-function checkoutRedirect(formData: FormData, errorCode: string): string {
-  const params = new URLSearchParams({
-    variant: String(formData.get("variantId") ?? ""),
-    qty: String(formData.get("quantity") ?? "1"),
-    error: errorCode,
-  });
-  return `/checkout?${params.toString()}`;
 }

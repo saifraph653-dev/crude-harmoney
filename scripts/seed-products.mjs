@@ -44,7 +44,7 @@ const productSchema = z
       .regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, "slug must be lowercase-kebab-case, e.g. 'midnight-hoodie'"),
     name: z.string().trim().min(1).max(200),
     description: z.string().max(5000).default(""),
-    status: z.enum(["draft", "live", "ended"]).default("draft"),
+    status: z.enum(["draft", "coming_soon", "live", "ended"]).default("draft"),
     collection: z.enum(["classic", "limited"]).default("classic"),
     displayOrder: z.number().int().default(0),
     imagePath: z.string().trim().min(1).optional(),

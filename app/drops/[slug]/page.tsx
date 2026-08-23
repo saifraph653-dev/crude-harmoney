@@ -34,19 +34,20 @@ export default async function ProductPage(props: PageProps<"/drops/[slug]">) {
 
   const isLimited = product.collection === "limited";
   const ended = product.status === "ended";
+  const upcoming = product.status === "coming_soon";
 
   return (
-    <main className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 sm:py-12">
+    <main className="mx-auto w-full max-w-5xl px-5 py-6 sm:px-6 sm:py-12">
       <Link
         href="/drops"
         className="inline-flex items-center gap-1.5 text-sm text-subtle transition-colors hover:text-foreground"
       >
-        <span aria-hidden>&larr;</span> All drops
+        <span aria-hidden>&larr;</span> The collection
       </Link>
 
-      <div className="mt-5 grid gap-8 sm:mt-8 sm:grid-cols-2 sm:gap-12">
+      <div className="mt-5 grid gap-9 sm:mt-8 sm:grid-cols-2 sm:gap-14">
         {/* Image */}
-        <div className="relative aspect-square overflow-hidden rounded-2xl border border-border bg-surface">
+        <div className="card-frame !rounded-2xl">
           {product.image ? (
             <Image
               src={product.image.path}
@@ -67,16 +68,21 @@ export default async function ProductPage(props: PageProps<"/drops/[slug]">) {
 
         {/* Details */}
         <div className="flex flex-col">
-          <p className="eyebrow">
+          <span className="eyebrow">
             {isLimited ? "Limited Edition" : "Classic Collection"}
-          </p>
-          <h1 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">
+          </span>
+          <h1 className="mt-2.5 text-2xl font-semibold tracking-[-0.02em] sm:text-4xl">
             {product.name}
           </h1>
 
           {product.fromPriceCents !== null && !ended ? (
             <p className="mt-3 text-xl font-medium sm:text-2xl">
               {formatPrice(product.fromPriceCents, product.currency)}
+              {upcoming ? (
+                <span className="ml-2 align-middle text-sm font-normal text-subtle">
+                  at launch
+                </span>
+              ) : null}
             </p>
           ) : null}
 
@@ -86,22 +92,50 @@ export default async function ProductPage(props: PageProps<"/drops/[slug]">) {
             </p>
           ) : null}
 
-          <p className="mt-5 text-sm leading-relaxed text-muted">
+          <p className="mt-6 text-sm leading-relaxed text-muted">
             {product.description}
           </p>
 
-          <div className="mt-7">
+          <div className="mt-8">
             {product.status === "live" ? (
               <ProductBuyBox variants={product.variants} currency={product.currency} />
+            ) : upcoming ? (
+              <div className="rounded-2xl border border-border bg-surface p-5">
+                <p className="text-sm font-medium">Not released yet</p>
+                <p className="mt-2 text-sm leading-relaxed text-muted">
+                  This piece is part of the first drop. Sizes and stock go live on
+                  launch day — nothing can be ordered before then.
+                </p>
+                <ul className="mt-4 flex flex-wrap gap-2">
+                  {product.variants.map((v) => (
+                    <li
+                      key={v.id}
+                      className="rounded-lg border border-border-strong px-3 py-1.5 text-xs text-subtle"
+                    >
+                      {v.size}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             ) : (
               <p className="text-sm text-subtle">No longer available.</p>
             )}
           </div>
 
-          <dl className="mt-9 grid grid-cols-2 gap-x-6 gap-y-4 border-t border-border pt-6 text-sm">
+          <dl className="mt-10 grid grid-cols-2 gap-x-6 gap-y-5 border-t border-border pt-7 text-sm">
+            <div>
+              <dt className="eyebrow">Fabric</dt>
+              <dd className="mt-1.5 text-muted">
+                {isLimited ? "260gsm combed cotton" : "240gsm combed cotton"}
+              </dd>
+            </div>
+            <div>
+              <dt className="eyebrow">Print</dt>
+              <dd className="mt-1.5 text-muted">Hand-pressed vinyl</dd>
+            </div>
             <div>
               <dt className="eyebrow">Shipping</dt>
-              <dd className="mt-1.5 text-muted">Ships from Doha in 2–4 days</dd>
+              <dd className="mt-1.5 text-muted">From Doha, 2–4 days</dd>
             </div>
             <div>
               <dt className="eyebrow">Restock</dt>

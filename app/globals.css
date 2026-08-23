@@ -9,18 +9,18 @@
    shots made the grid read as a spreadsheet. One deliberate look.
    --------------------------------------------------------------------------- */
 :root {
-  --bg: #0b0b0c;
-  --bg-raised: #141417;
-  --bg-inset: #08080a;
-  --border: #26262b;
-  --border-strong: #3a3a42;
-  --fg: #f4f4f5;
-  --fg-muted: #a1a1aa;
-  --fg-subtle: #71717a;
-  --accent: #c9a227;
-  --accent-fg: #0b0b0c;
-  --danger: #f87171;
-  --ok: #4ade80;
+  --bg: #0a0a0b;
+  --bg-raised: #121215;
+  --bg-inset: #060607;
+  --border: #23232a;
+  --border-strong: #35353f;
+  --fg: #f5f5f6;
+  --fg-muted: #a3a3ad;
+  --fg-subtle: #6e6e79;
+  --accent: #c8a02b;
+  --accent-fg: #0a0a0b;
+  --danger: #f0736b;
+  --ok: #57c98a;
 }
 
 @theme inline {
@@ -55,12 +55,100 @@ body {
   padding-right: env(safe-area-inset-right);
 }
 
-/* Utility: the small all-caps label used for section and meta text. */
+/* ---------------------------------------------------------------------------
+   Texture. A single tiled SVG noise layer, kept very low contrast -- it is
+   what stops large flat dark areas looking like empty <div>s.
+   --------------------------------------------------------------------------- */
+.grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+}
+
+/* ---------------------------------------------------------------------------
+   Type + component primitives
+   --------------------------------------------------------------------------- */
 .eyebrow {
   font-size: 0.6875rem;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--fg-subtle);
+}
+
+/* Centred label flanked by hairlines, e.g. the hero's "Doha, Qatar". */
+.rule-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.9rem;
+  font-size: 0.6875rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--fg-subtle);
+}
+.rule-label .rule {
+  display: block;
+  width: 2.25rem;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--border-strong), transparent);
+}
+
+.btn-primary {
+  display: inline-flex;
+  height: 3.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding-inline: 1.9rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  background: var(--fg);
+  color: var(--bg);
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.btn-primary:hover {
+  opacity: 0.9;
+}
+.btn-primary:active {
+  transform: scale(0.985);
+}
+
+.btn-ghost {
+  display: inline-flex;
+  height: 3.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding-inline: 1.9rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--fg-muted);
+  border: 1px solid var(--border-strong);
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+.btn-ghost:hover {
+  border-color: var(--fg);
+  color: var(--fg);
+}
+
+.link-quiet {
+  font-size: 0.875rem;
+  color: var(--fg-muted);
+  text-underline-offset: 4px;
+  transition: color 0.2s ease;
+}
+.link-quiet:hover {
+  color: var(--fg);
+  text-decoration: underline;
+}
+
+/* Product image frame, shared by every grid card. */
+.card-frame {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 0.85rem;
+  border: 1px solid var(--border);
+  background: var(--bg-raised);
 }
 
 /* Visible focus for keyboard users, since the design removes default

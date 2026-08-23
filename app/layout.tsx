@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
+import { Wordmark } from "@/components/Wordmark";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -19,11 +20,11 @@ export const metadata: Metadata = {
     template: "%s · Crude Harmony",
   },
   description:
-    "Limited streetwear drops out of Doha. Small runs, guest checkout, no restocks.",
+    "Modern vintage out of Doha. Heavyweight blanks, hand-pressed marks, counted runs.",
   openGraph: {
     title: "Crude Harmony",
     description:
-      "Limited streetwear drops out of Doha. Small runs, guest checkout, no restocks.",
+      "Modern vintage out of Doha. Heavyweight blanks, hand-pressed marks, counted runs.",
     type: "website",
   },
 };
@@ -41,16 +42,19 @@ function Header() {
       <nav className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 sm:h-16 sm:px-6">
         <Link
           href="/"
-          className="text-sm font-semibold tracking-[0.2em] uppercase transition-colors hover:text-accent"
+          className="group flex items-center gap-2.5 transition-colors hover:text-accent"
         >
-          Crude Harmony
+          <Wordmark className="h-4 w-auto sm:h-[1.15rem]" />
+          <span className="text-sm font-semibold tracking-[0.2em] uppercase">
+            Crude Harmony
+          </span>
         </Link>
         <div className="flex items-center gap-1 sm:gap-2">
           <Link
             href="/drops"
             className="rounded-full px-3 py-2 text-sm text-muted transition-colors hover:bg-surface hover:text-foreground"
           >
-            Shop
+            Collection
           </Link>
           <Link
             href="/orders/lookup"
@@ -68,7 +72,7 @@ function Footer() {
   return (
     <footer className="mt-20 border-t border-border">
       <div className="mx-auto flex max-w-5xl flex-col gap-4 px-4 py-8 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-        <p className="eyebrow">Crude Harmony · Doha, Qatar</p>
+        <p className="eyebrow">Crude Harmony · Doha, Qatar · Not yet released</p>
         <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-subtle">
           <Link href="/drops" className="transition-colors hover:text-foreground">
             Drops
