@@ -1,17 +1,104 @@
 [
   {
-    "slug": "example-drop-tee",
-    "name": "Example Drop Tee",
-    "description": "Heavyweight cotton, boxy fit. Replace this entry with your real drop before running against production -- see README's \"Seeding products\" section.",
-    "status": "draft",
-    "imagePath": "/products/placeholder.svg",
-    "imageWidth": 800,
-    "imageHeight": 800,
+    "slug": "atlas-tee",
+    "name": "Atlas Tee",
+    "collection": "classic",
+    "displayOrder": 1,
+    "description": "The core piece. 240gsm combed cotton, boxy cut, ribbed collar that holds its shape after the wash. Chest print in soft-hand white ink so it sits flat instead of cracking. Runs true to size — take one down if you want it fitted.",
+    "status": "live",
+    "imagePath": "/products/atlas-tee.svg",
+    "imageWidth": 1000,
+    "imageHeight": 1000,
     "variants": [
-      { "size": "S", "sku": "EDT-S", "priceCents": 18000, "stockCount": 8, "sortOrder": 1 },
-      { "size": "M", "sku": "EDT-M", "priceCents": 18000, "stockCount": 12, "sortOrder": 2 },
-      { "size": "L", "sku": "EDT-L", "priceCents": 18000, "stockCount": 8, "sortOrder": 3 },
-      { "size": "XL", "sku": "EDT-XL", "priceCents": 18000, "stockCount": 4, "sortOrder": 4 }
+      { "size": "S", "sku": "CH-ATL-S", "priceCents": 18000, "stockCount": 12, "sortOrder": 1 },
+      { "size": "M", "sku": "CH-ATL-M", "priceCents": 18000, "stockCount": 18, "sortOrder": 2 },
+      { "size": "L", "sku": "CH-ATL-L", "priceCents": 18000, "stockCount": 18, "sortOrder": 3 },
+      { "size": "XL", "sku": "CH-ATL-XL", "priceCents": 18000, "stockCount": 10, "sortOrder": 4 }
+    ]
+  },
+  {
+    "slug": "meridian-tee",
+    "name": "Meridian Tee",
+    "collection": "classic",
+    "displayOrder": 2,
+    "description": "Off-white heavyweight with the boxed wordmark across the chest. Garment-dyed, so the colour settles rather than fades. Slightly longer body than the Atlas. The one you'll reach for when everything else is in the wash.",
+    "status": "live",
+    "imagePath": "/products/meridian-tee.svg",
+    "imageWidth": 1000,
+    "imageHeight": 1000,
+    "variants": [
+      { "size": "S", "sku": "CH-MER-S", "priceCents": 18000, "stockCount": 10, "sortOrder": 1 },
+      { "size": "M", "sku": "CH-MER-M", "priceCents": 18000, "stockCount": 16, "sortOrder": 2 },
+      { "size": "L", "sku": "CH-MER-L", "priceCents": 18000, "stockCount": 16, "sortOrder": 3 },
+      { "size": "XL", "sku": "CH-MER-XL", "priceCents": 18000, "stockCount": 8, "sortOrder": 4 }
+    ]
+  },
+  {
+    "slug": "dune-tee",
+    "name": "Dune Tee",
+    "collection": "classic",
+    "displayOrder": 3,
+    "description": "Sand-toned cotton with a three-line horizon print. Made for the months when black is not an option. Pre-shrunk and stonewashed once before it ships, so what you get is what it stays.",
+    "status": "live",
+    "imagePath": "/products/dune-tee.svg",
+    "imageWidth": 1000,
+    "imageHeight": 1000,
+    "variants": [
+      { "size": "S", "sku": "CH-DUN-S", "priceCents": 19000, "stockCount": 8, "sortOrder": 1 },
+      { "size": "M", "sku": "CH-DUN-M", "priceCents": 19000, "stockCount": 14, "sortOrder": 2 },
+      { "size": "L", "sku": "CH-DUN-L", "priceCents": 19000, "stockCount": 14, "sortOrder": 3 },
+      { "size": "XL", "sku": "CH-DUN-XL", "priceCents": 19000, "stockCount": 6, "sortOrder": 4 }
+    ]
+  },
+  {
+    "slug": "slate-tee",
+    "name": "Slate Tee",
+    "collection": "classic",
+    "displayOrder": 4,
+    "description": "Blue-grey mid-weight with the CH crest printed small on the left chest. The quietest thing we make. Cut a touch closer through the body than the rest of the Classic range.",
+    "status": "live",
+    "imagePath": "/products/slate-tee.svg",
+    "imageWidth": 1000,
+    "imageHeight": 1000,
+    "variants": [
+      { "size": "S", "sku": "CH-SLT-S", "priceCents": 18000, "stockCount": 10, "sortOrder": 1 },
+      { "size": "M", "sku": "CH-SLT-M", "priceCents": 18000, "stockCount": 15, "sortOrder": 2 },
+      { "size": "L", "sku": "CH-SLT-L", "priceCents": 18000, "stockCount": 15, "sortOrder": 3 },
+      { "size": "XL", "sku": "CH-SLT-XL", "priceCents": 18000, "stockCount": 8, "sortOrder": 4 }
+    ]
+  },
+  {
+    "slug": "ember-01",
+    "name": "Ember 01",
+    "collection": "limited",
+    "displayOrder": 5,
+    "description": "First limited release. Deep oxide red, 260gsm, with a hand-drawn burst printed in cream and a numbered tag stitched inside the hem. Thirty made in total across all sizes. When it's gone there is no restock — the plates are destroyed after the run.",
+    "status": "live",
+    "imagePath": "/products/ember-tee.svg",
+    "imageWidth": 1000,
+    "imageHeight": 1000,
+    "variants": [
+      { "size": "S", "sku": "CH-EMB-S", "priceCents": 28000, "stockCount": 5, "sortOrder": 1 },
+      { "size": "M", "sku": "CH-EMB-M", "priceCents": 28000, "stockCount": 10, "sortOrder": 2 },
+      { "size": "L", "sku": "CH-EMB-L", "priceCents": 28000, "stockCount": 10, "sortOrder": 3 },
+      { "size": "XL", "sku": "CH-EMB-XL", "priceCents": 28000, "stockCount": 5, "sortOrder": 4 }
+    ]
+  },
+  {
+    "slug": "obsidian-02",
+    "name": "Obsidian 02",
+    "collection": "limited",
+    "displayOrder": 6,
+    "description": "Second limited release. Black on black cotton with the fractured grid pulled in antique gold foil — pressed by hand, so no two sit exactly alike. Twenty-four pieces. Numbered, boxed, and shipped with the print registration card from its own run.",
+    "status": "live",
+    "imagePath": "/products/obsidian-tee.svg",
+    "imageWidth": 1000,
+    "imageHeight": 1000,
+    "variants": [
+      { "size": "S", "sku": "CH-OBS-S", "priceCents": 32000, "stockCount": 4, "sortOrder": 1 },
+      { "size": "M", "sku": "CH-OBS-M", "priceCents": 32000, "stockCount": 8, "sortOrder": 2 },
+      { "size": "L", "sku": "CH-OBS-L", "priceCents": 32000, "stockCount": 8, "sortOrder": 3 },
+      { "size": "XL", "sku": "CH-OBS-XL", "priceCents": 32000, "stockCount": 4, "sortOrder": 4 }
     ]
   }
 ]

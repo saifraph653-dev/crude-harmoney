@@ -39,18 +39,27 @@ export async function getDropProducts(): Promise<ProductSummary[]> {
   const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("products")
-    .select("slug, name, status, image_path, image_width, image_height")
+    .select(
+      "slug, name, status, collection, currency, image_path, image_width, image_height, variants(price_cents)",
+    )
     .in("status", ["live", "ended"])
+    .order("display_order", { ascending: true })
     .order("created_at", { ascending: false });
 
   if (error) throw new Error(`getDropProducts: ${error.message}`);
 
-  return (data ?? []).map((row) => ({
-    slug: row.slug,
-    name: row.name,
-    status: row.status as "live" | "ended",
-    image: toImage(row),
-  }));
+  return (data ?? []).map((row) => {
+    const prices = (row.variants ?? []).map((v) => v.price_cents);
+    return {
+      slug: row.slug,
+      name: row.name,
+      status: row.status as "live" | "ended",
+      collection: row.collection as ProductSummary["collection"],
+      currency: row.currency,
+      image: toImage(row),
+      fromPriceCents: prices.length > 0 ? Math.min(...prices) : null,
+    };
+  });
 }
 
 export async function getProductDetailBySlug(slug: string): Promise<ProductDetail | null> {
@@ -62,7 +71,7 @@ export async function getProductDetailBySlug(slug: string): Promise<ProductDetai
   const { data: product, error: productError } = await supabase
     .from("products")
     .select(
-      "id, slug, name, description, status, currency, image_path, image_width, image_height",
+      "id, slug, name, description, status, collection, currency, image_path, image_width, image_height",
     )
     .eq("slug", slug)
     .in("status", ["live", "ended"])
@@ -85,13 +94,17 @@ export async function getProductDetailBySlug(slug: string): Promise<ProductDetai
     priceCents: row.price_cents,
   }));
 
+  const prices = variants.map((v) => v.priceCents);
+
   return {
     slug: product.slug,
     name: product.name,
     description: product.description,
     status: product.status as "live" | "ended",
+    collection: product.collection as ProductDetail["collection"],
     currency: product.currency,
     image: toImage(product),
+    fromPriceCents: prices.length > 0 ? Math.min(...prices) : null,
     variants,
   };
 }
