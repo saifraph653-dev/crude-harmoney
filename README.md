@@ -191,12 +191,14 @@ changing `lib/payments/index.ts` to return a new adapter implementing
 **Reservation TTL and release:** reservations expire after 10 minutes.
 Release happens two ways -- inline (every checkout attempt reclaims its
 own variant's expired reservations first, so this doesn't depend on cron
-timing) and via `/api/cron/release-reservations` on a 5-minute Vercel
-Cron schedule (`vercel.json`) for keeping displayed stock accurate.
-**If deploying on Vercel's Hobby plan, note that Hobby cron jobs run at
-most once per day** -- see SECURITY.md's "Stock reservation TTL and
-release" section for why this doesn't break correctness, just how
-quickly `/api/stock` catches up after an abandoned checkout.
+timing) and via `/api/cron/release-reservations` on a Vercel Cron
+schedule (`vercel.json`). **Vercel's Hobby plan only allows daily cron
+jobs**, so `vercel.json` is set to `0 3 * * *` (once daily) by
+default -- see SECURITY.md's "Stock reservation TTL and release"
+section for why this doesn't break correctness, just how quickly
+`/api/stock` catches up after an abandoned checkout. If you're on a
+Pro plan or higher, tighten this to something like `*/5 * * * *` for
+displayed stock to recover from an abandoned checkout faster.
 
 Set `CRON_SECRET` (a random 16+ character string) in your environment --
 Vercel automatically sends it as the cron request's `Authorization`
