@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Wordmark } from "@/components/Wordmark";
 import "./globals.css";
 
@@ -98,6 +99,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <Header />
         <div className="flex flex-1 flex-col">{children}</div>
         <Footer />
+        <SpeedInsights />
       </body>
     </html>
   );
