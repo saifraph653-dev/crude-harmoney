@@ -2,7 +2,7 @@ import { connection } from "next/server";
 import Image from "next/image";
 import Link from "next/link";
 import { getDropProducts } from "@/lib/products";
-import { Wordmark } from "@/components/Wordmark";
+import { ProductGrid } from "@/components/ProductGrid";
 
 // Forced dynamic so the CSP nonce (proxy.ts) reaches this page's script
 // tags -- see app/drops/page.tsx for the full explanation.
@@ -11,142 +11,90 @@ export const instant = false;
 export default async function Home() {
   await connection();
   const products = await getDropProducts();
-  const preview = products.slice(0, 3);
+  const lead = products[0] ?? null;
 
   return (
     <main className="flex flex-1 flex-col">
       {/* ------------------------------------------------------------------ */}
-      {/* Hero                                                                */}
+      {/* Opening frame                                                       */}
+      {/*                                                                     */}
+      {/* A garment, full bleed, before any words. The previous version led   */}
+      {/* with a headline, a paragraph, two stacked buttons and a disclaimer  */}
+      {/* -- four blocks of text before a customer saw a single piece of      */}
+      {/* clothing, which is a landing page, not a label.                     */}
       {/* ------------------------------------------------------------------ */}
-      <section className="relative overflow-hidden">
-        <div aria-hidden className="pointer-events-none absolute inset-0">
-          <div className="grain absolute inset-0" />
-        </div>
-
-        <div className="relative mx-auto w-full max-w-5xl px-5 pt-16 pb-14 sm:px-6 sm:pt-28 sm:pb-24">
-          {/* Metadata rail. Left-aligned and rule-separated rather than a
-              centred badge -- it reads as a garment label, not a hero chip. */}
-          <div className="flex items-center gap-4 border-b border-border pb-4">
-            <span className="eyebrow">Doha, Qatar</span>
-            <span className="eyebrow ml-auto">Vol. 01</span>
+      {lead?.image ? (
+        <section className="relative">
+          <div className="relative aspect-[4/5] w-full overflow-hidden sm:aspect-[16/9]">
+            <Image
+              src={lead.image.path}
+              alt={lead.name}
+              fill
+              // The LCP element: eager, high priority, and sized so phones
+              // never fetch the desktop crop.
+              priority
+              fetchPriority="high"
+              sizes="100vw"
+              className="object-cover object-[50%_38%]"
+            />
+            <div
+              aria-hidden
+              className="absolute inset-x-0 bottom-0 h-2/3"
+              style={{
+                background:
+                  "linear-gradient(to top, rgba(12,11,10,0.92) 0%, rgba(12,11,10,0.35) 45%, transparent 100%)",
+              }}
+            />
           </div>
 
-          {/* Asymmetric type block. The headline is deliberately allowed to
-              run wider than the copy beneath it, and the copy is pushed off
-              the left margin into the right half -- a centred stack of
-              headline / paragraph / buttons is the template composition. */}
-          <h1 className="display mt-10 sm:mt-16">
-            Modern vintage,
-            <br />
-            <span className="serif italic">made in small runs.</span>
-          </h1>
-
-          <div className="mt-10 grid gap-8 sm:mt-14 sm:grid-cols-12 sm:gap-6">
-            <div className="sm:col-span-5 sm:col-start-7">
-              <p className="max-w-sm text-base leading-relaxed text-muted">
-                Heavyweight blanks, hand-pressed marks, counted editions. The
-                first drop has not landed yet — this is what is coming.
-              </p>
-              <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-                <Link href="/drops" className="btn-primary">
-                  See the collection
-                </Link>
-                <Link href="/orders/lookup" className="btn-ghost">
-                  Track an order
-                </Link>
-              </div>
-              <p className="eyebrow mt-6">Nothing is on sale yet</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ------------------------------------------------------------------ */}
-      {/* Preview strip                                                       */}
-      {/* ------------------------------------------------------------------ */}
-      {preview.length > 0 ? (
-        <section className="border-t border-border">
-          <div className="mx-auto w-full max-w-5xl px-5 py-14 sm:px-6 sm:py-20">
-            <div className="flex items-baseline justify-between gap-4">
-              <h2 className="section-title">
-                First look
-              </h2>
-              <Link href="/drops" className="link-quiet">
-                All pieces
+          <div className="pointer-events-none absolute inset-x-0 bottom-0">
+            <div className="mx-auto w-full max-w-[88rem] px-5 pb-8 sm:px-8 sm:pb-14">
+              <p className="eyebrow">Vol. 01 — Doha</p>
+              <h1 className="display mt-3 max-w-[14ch]">
+                Counted runs,
+                <br />
+                <span className="serif italic">pressed by hand.</span>
+              </h1>
+              <Link
+                href="/drops"
+                className="btn-primary pointer-events-auto mt-7 inline-flex"
+              >
+                The collection
               </Link>
             </div>
-
-            <ul className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-6">
-              {preview.map((product) => (
-                <li key={product.slug}>
-                  <Link href={`/drops/${product.slug}`} className="group block">
-                    <div className="card-frame">
-                      {product.image ? (
-                        <Image
-                          src={product.image.path}
-                          width={product.image.width}
-                          height={product.image.height}
-                          alt={product.name}
-                          sizes="(max-width: 640px) 50vw, 33vw"
-                          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
-                        />
-                      ) : null}
-                    </div>
-                    <p className="mt-3 text-sm font-medium transition-colors group-hover:text-accent">
-                      {product.name}
-                    </p>
-                    <p className="eyebrow mt-1">
-                      {product.collection === "limited" ? "Limited" : "Classic"}
-                    </p>
-                  </Link>
-                </li>
-              ))}
-            </ul>
           </div>
         </section>
       ) : null}
 
       {/* ------------------------------------------------------------------ */}
-      {/* How it's made                                                       */}
+      {/* The collection                                                      */}
       {/* ------------------------------------------------------------------ */}
-      <section className="border-t border-border">
-        <div className="mx-auto w-full max-w-5xl px-5 py-14 sm:px-6 sm:py-20">
-          <h2 className="section-title">
-            How it&apos;s made
-          </h2>
-          <dl className="mt-8 grid gap-8 sm:grid-cols-3 sm:gap-10">
-            {[
-              [
-                "Heavyweight blanks",
-                "240–260gsm combed cotton, boxy cut, ribbed collar that holds after the wash.",
-              ],
-              [
-                "Pressed by hand",
-                "Every mark is cut and heat-pressed one piece at a time. Small variations are the point.",
-              ],
-              [
-                "Counted runs",
-                "Each release is a fixed number. When a size goes, it is gone — we do not reprint.",
-              ],
-            ].map(([title, body]) => (
-              <div key={title}>
-                <dt className="text-sm font-semibold">{title}</dt>
-                <dd className="mt-2 text-sm leading-relaxed text-muted">{body}</dd>
-              </div>
-            ))}
-          </dl>
-        </div>
-      </section>
+      {products.length > 0 ? (
+        <section className="mx-auto w-full max-w-[88rem] px-5 py-16 sm:px-8 sm:py-24">
+          <div className="flex items-baseline justify-between gap-4 border-b border-border pb-4">
+            <h2 className="eyebrow">Vol. 01</h2>
+            <span className="eyebrow">
+              {products.every((p) => p.status === "coming_soon")
+                ? "Coming soon"
+                : `${products.length} piece${products.length === 1 ? "" : "s"}`}
+            </span>
+          </div>
+          <ProductGrid products={products} className="mt-8 sm:mt-12" />
+        </section>
+      ) : null}
 
       {/* ------------------------------------------------------------------ */}
-      {/* Closing mark                                                        */}
+      {/* One line, not a feature grid                                        */}
+      {/*                                                                     */}
+      {/* This replaced a three-column "How it's made" list of headed         */}
+      {/* paragraphs, which is the shape of a SaaS features section and read  */}
+      {/* as one wherever it appeared.                                        */}
       {/* ------------------------------------------------------------------ */}
       <section className="border-t border-border">
-        <div className="mx-auto flex max-w-5xl flex-col items-center px-5 py-16 text-center sm:px-6 sm:py-24">
-          <Wordmark className="h-8 w-auto text-subtle sm:h-10" />
-          <p className="mt-6 max-w-sm text-sm leading-relaxed text-subtle">
-            Follow the drop. Once the first run is live it will be here, and it
-            will not last long.
+        <div className="mx-auto w-full max-w-[88rem] px-5 py-16 sm:px-8 sm:py-24">
+          <p className="max-w-[36ch] text-[1.375rem] leading-[1.3] tracking-[-0.02em] sm:text-[2rem]">
+            Heavyweight blanks, cut and pressed one piece at a time. Each run is
+            a fixed number and we do not reprint.
           </p>
         </div>
       </section>

@@ -46,9 +46,13 @@ export function OrderLookupForm({
     });
   }
 
+  // Empty sitekey means Turnstile is not configured for this environment;
+  // the lookup still works and is still rate limited server-side.
+  const captchaRequired = turnstileSiteKey !== "";
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!turnstileToken) return;
+    if (captchaRequired && !turnstileToken) return;
 
     setSubmitting(true);
     setResult(null);
@@ -61,7 +65,7 @@ export function OrderLookupForm({
         body: JSON.stringify({
           orderNumber: formData.get("orderNumber"),
           email: formData.get("email"),
-          turnstileToken,
+          turnstileToken: turnstileToken ?? "",
         }),
       });
       const body = (await res.json()) as OrderLookupResult;
@@ -80,12 +84,14 @@ export function OrderLookupForm({
 
   return (
     <div>
+{captchaRequired ? (
       <Script
         src="https://challenges.cloudflare.com/turnstile/v0/api.js"
         strategy="afterInteractive"
         nonce={nonce ?? undefined}
         onLoad={renderTurnstile}
       />
+      ) : null}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium" htmlFor="orderNumber">
@@ -113,10 +119,10 @@ export function OrderLookupForm({
             className="mt-1 h-12 w-full rounded-[2px] border border-border-strong bg-surface px-3 text-base"
           />
         </div>
-        <div ref={turnstileContainerRef} />
+        {captchaRequired ? <div ref={turnstileContainerRef} /> : null}
         <button
           type="submit"
-          disabled={submitting || !turnstileToken}
+          disabled={submitting || (captchaRequired && !turnstileToken)}
           className="btn-primary w-full disabled:opacity-50"
         >
           {submitting ? "Looking up…" : "Find my order"}

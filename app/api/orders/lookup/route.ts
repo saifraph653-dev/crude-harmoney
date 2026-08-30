@@ -3,6 +3,7 @@ import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { checkRateLimit, getClientIp, orderLookupRateLimit } from "@/lib/rate-limit";
 import { verifyTurnstileToken } from "@/lib/turnstile";
+import { turnstileEnabled } from "@/lib/turnstile-keys";
 
 // Order lookup is the one enumerable endpoint in this app -- an order
 // number is a small, guessable sequence (CH-000001, CH-000002, ...) and
@@ -25,7 +26,7 @@ const lookupSchema = z
   .object({
     orderNumber: z.string().trim().min(1).max(20),
     email: z.string().trim().min(1).max(254).email(),
-    turnstileToken: z.string().min(1),
+    turnstileToken: z.string(),
   })
   .strict();
 
@@ -66,7 +67,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(NOT_FOUND);
   }
 
-  const turnstileOk = await verifyTurnstileToken(parsed.data.turnstileToken, clientIp);
+  // Skipped only when the environment has no usable Turnstile configuration
+  // (unset, or one of Cloudflare's public test keys, which pass everything
+  // anyway and render a "Testing only" widget to customers). The endpoint is
+  // rate limited independently of this.
+  const captchaConfigured = turnstileEnabled(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
+  const turnstileOk = captchaConfigured
+    ? await verifyTurnstileToken(parsed.data.turnstileToken, clientIp)
+    : true;
   if (!turnstileOk) {
     await delayToFloor(startedAt);
     return NextResponse.json(NOT_FOUND);

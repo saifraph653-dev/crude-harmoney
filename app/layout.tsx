@@ -59,40 +59,46 @@ async function Header() {
   const units = bagUnits(parseBag(store.get(BAG_COOKIE)?.value));
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background">
-      <nav className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 sm:h-16 sm:px-6">
-        <Link
-          href="/"
-          className="group flex items-center gap-2.5 transition-colors hover:text-accent"
-        >
-          <Wordmark className="h-4 w-auto sm:h-[1.15rem]" />
-          {/* nowrap + slightly tighter tracking on small screens: at 390px
-              the wordmark was breaking onto two lines and inflating the
-              header. */}
-          <span className="text-xs font-semibold tracking-[0.16em] whitespace-nowrap uppercase sm:text-sm sm:tracking-[0.2em]">
-            Crude Harmony
-          </span>
+    <header className="relative sticky top-0 z-40 border-b border-border bg-background">
+      <nav className="mx-auto flex h-14 max-w-[88rem] items-center gap-4 px-5 sm:h-16 sm:px-8">
+        <Link href="/" className="shrink-0" aria-label="Crude Harmony, home">
+          <Wordmark className="text-[0.7rem] sm:text-[0.8rem]" />
         </Link>
-        <div className="flex items-center gap-1 sm:gap-2">
-          <Link
-            href="/drops"
-            className="px-3 py-2 text-xs font-medium tracking-[0.14em] text-muted uppercase transition-colors hover:text-foreground"
-          >
+
+        {/* Desktop: the sections sit inline, centred between mark and bag. */}
+        <div className="ml-auto hidden items-center gap-8 sm:flex">
+          <Link href="/drops" className="nav-link">
             Collection
           </Link>
-          <Link
-            href="/orders/lookup"
-            className="px-3 py-2 text-xs font-medium tracking-[0.14em] text-muted uppercase transition-colors hover:text-foreground"
-          >
+          <Link href="/orders/lookup" className="nav-link">
             Track
           </Link>
-          <Link
-            href="/cart"
-            className="px-3 py-2 text-xs font-medium tracking-[0.14em] text-muted uppercase transition-colors hover:text-foreground"
-          >
-            Bag{units > 0 ? ` (${units})` : ""}
-          </Link>
         </div>
+
+        {/* Mobile: a disclosure, not a scaled-down desktop row.
+            The old header laid the wordmark and three tracked uppercase
+            links in one nowrap flex row; its intrinsic width was 429px, so
+            it overflowed every viewport at 390px and below. Built on
+            <details> so it opens and closes with no JavaScript and no
+            hydration, and stays keyboard- and screen-reader-operable. */}
+        <details className="nav-disclosure ml-auto sm:hidden">
+          <summary className="nav-link list-none">Menu</summary>
+          <div className="nav-panel">
+            <Link href="/drops" className="nav-panel-link">
+              Collection
+            </Link>
+            <Link href="/orders/lookup" className="nav-panel-link">
+              Track an order
+            </Link>
+            <Link href="/cart" className="nav-panel-link">
+              Bag{units > 0 ? ` (${units})` : ""}
+            </Link>
+          </div>
+        </details>
+
+        <Link href="/cart" className="nav-link hidden shrink-0 sm:block">
+          Bag{units > 0 ? ` (${units})` : ""}
+        </Link>
       </nav>
     </header>
   );
@@ -100,17 +106,25 @@ async function Header() {
 
 function Footer() {
   return (
-    <footer className="mt-20 border-t border-border">
-      <div className="mx-auto flex max-w-5xl flex-col gap-4 px-4 py-8 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-        <p className="eyebrow">Crude Harmony · Doha, Qatar · Not yet released</p>
-        <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-subtle">
-          <Link href="/drops" className="transition-colors hover:text-foreground">
-            Drops
+    <footer className="mt-24 border-t border-border">
+      <div className="mx-auto w-full max-w-[88rem] px-5 py-12 sm:px-8 sm:py-16">
+        <Wordmark className="text-[0.7rem] text-subtle" />
+
+        <div className="mt-8 flex flex-wrap gap-x-8 gap-y-3">
+          <Link href="/drops" className="nav-link">
+            Collection
           </Link>
-          <Link href="/orders/lookup" className="transition-colors hover:text-foreground">
+          <Link href="/orders/lookup" className="nav-link">
             Track an order
           </Link>
+          <Link href="/cart" className="nav-link">
+            Bag
+          </Link>
         </div>
+
+        <p className="mt-10 text-xs text-subtle">
+          Doha, Qatar. Vol. 01 has not been released.
+        </p>
       </div>
       {/* Breathing room above the iPhone home indicator. */}
       <div style={{ height: "env(safe-area-inset-bottom)" }} />

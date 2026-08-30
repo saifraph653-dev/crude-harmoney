@@ -255,3 +255,54 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Navigation.
+
+   The mobile menu is a <details> disclosure rather than a JS drawer: it
+   costs no bundle, works before hydration, and the browser gives correct
+   keyboard and screen-reader behaviour for free.
+   --------------------------------------------------------------------------- */
+.nav-link {
+  font-size: var(--step--2);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--bone-muted);
+  white-space: nowrap;
+  transition: color 0.2s var(--ease);
+}
+.nav-link:hover {
+  color: var(--bone);
+}
+
+.nav-disclosure > summary {
+  cursor: pointer;
+  list-style: none;
+}
+.nav-disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+.nav-disclosure[open] > summary {
+  color: var(--bone);
+}
+
+/* Full-width panel under the header rather than a floating card. */
+.nav-panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--ink);
+  border-bottom: 1px solid var(--line);
+  padding: var(--space-2) 0 var(--space-6);
+}
+.nav-panel-link {
+  padding: var(--space-4) var(--space-6);
+  font-size: var(--step-2);
+  letter-spacing: -0.02em;
+  color: var(--bone);
+  border-top: 1px solid var(--line);
+}

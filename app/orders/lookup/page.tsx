@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import { turnstileEnabled } from "@/lib/turnstile-keys";
 import { OrderLookupForm } from "@/components/OrderLookupForm";
 
 // Forced dynamic (headers() is a runtime API) so the CSP nonce
@@ -9,7 +10,10 @@ export const instant = false;
 
 export default async function OrderLookupPage() {
   const nonce = (await headers()).get("x-nonce");
-  const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
+  // A test sitekey in production renders Cloudflare's "Testing only" widget
+  // to customers. Treated as unconfigured instead -- see lib/turnstile-keys.
+  const rawSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
+  const turnstileSiteKey = turnstileEnabled(rawSiteKey) ? rawSiteKey : "";
 
   return (
     <main className="mx-auto max-w-lg px-6 py-12">
