@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Secret scan on staged changes. Installed via `npm install` (see the
+# "prepare" script in package.json, which points core.hooksPath here).
+#
+# This is a local convenience, not the enforcement boundary -- the
+# gitleaks GitHub Action (.github/workflows/gitleaks.yml) runs on every
+# push and is what actually blocks a leaked secret from being reviewed.
+set -euo pipefail
+
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "warning: gitleaks is not installed, skipping local secret scan." >&2
+  echo "         install: https://github.com/gitleaks/gitleaks#installing" >&2
+  echo "         (CI still scans every push regardless.)" >&2
+  exit 0
+fi
+
+gitleaks protect --staged --redact --verbose

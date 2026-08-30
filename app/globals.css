@@ -1,0 +1,257 @@
+@import "tailwindcss";
+
+/* ===========================================================================
+   Crude Harmony — design system.
+
+   One dark treatment, committed to rather than following the system
+   preference: garment art sits on its own fixed backdrops, and a light UI
+   around dark shots made the grid read as a spreadsheet.
+
+   The palette is warm. Cold near-blacks (#0a0a0b and friends) are the
+   default of every dev-tool UI; the brand is "modern vintage", so the
+   neutrals carry a little warmth and the foreground is bone rather than
+   white. There is no gold, no second hue: the brightest things on screen
+   should be the garment and the type, nothing else.
+   =========================================================================== */
+:root {
+  /* Surfaces — warm near-blacks. */
+  --ink: #0c0b0a;
+  --ink-raised: #151312;
+  --ink-inset: #070606;
+
+  /* Foreground — bone, not white. */
+  --bone: #ece7dd;
+  --bone-muted: #9a938a;
+  --bone-subtle: #6a645c;
+
+  /* Hairlines. The design leans on 1px rules instead of shadows. */
+  --line: #232120;
+  --line-strong: #38342f;
+
+  /* State. Desaturated so they never out-shout the product. */
+  --danger: #d9756c;
+  --ok: #7fae8b;
+
+  /* Type scale — one ratio, no ad-hoc sizes at call sites. */
+  --step--2: 0.6875rem;
+  --step--1: 0.8125rem;
+  --step-0: 0.9375rem;
+  --step-1: 1.125rem;
+  --step-2: 1.5rem;
+  --step-3: 2rem;
+  --step-4: 2.75rem;
+  --step-5: 4rem;
+
+  /* Spacing. */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-24: 6rem;
+
+  /* Radius. Near-square: rounded pills and 14px cards are the house style
+     of every SaaS template, and they soften a brand that should read sharp. */
+  --radius: 2px;
+
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+@theme inline {
+  --color-background: var(--ink);
+  --color-surface: var(--ink-raised);
+  --color-inset: var(--ink-inset);
+  --color-border: var(--line);
+  --color-border-strong: var(--line-strong);
+  --color-foreground: var(--bone);
+  --color-muted: var(--bone-muted);
+  --color-subtle: var(--bone-subtle);
+  /* Kept so existing call sites resolve; the accent is bone, not a hue. */
+  --color-accent: var(--bone);
+  --color-accent-foreground: var(--ink);
+  --color-danger: var(--danger);
+  --color-ok: var(--ok);
+  --font-sans: var(--font-archivo);
+  --font-serif: var(--font-instrument);
+  --radius-sm: var(--radius);
+  --radius-md: var(--radius);
+  --radius-lg: var(--radius);
+}
+
+html {
+  background: var(--ink);
+  -webkit-text-size-adjust: 100%; /* iOS: no auto-inflation in landscape. */
+}
+
+body {
+  background: var(--ink);
+  color: var(--bone);
+  font-family: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  font-size: var(--step-0);
+  line-height: 1.55;
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Editorial accent. One weight, one italic, used deliberately and rarely. */
+.serif {
+  font-family: var(--font-instrument), Georgia, serif;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+/* ---------------------------------------------------------------------------
+   Texture: a single tiled SVG noise layer at very low contrast. It is what
+   stops large flat dark areas reading as empty <div>s.
+   --------------------------------------------------------------------------- */
+.grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+  opacity: 0.045;
+  mix-blend-mode: overlay;
+}
+
+/* ---------------------------------------------------------------------------
+   Type primitives
+   --------------------------------------------------------------------------- */
+
+/* Metadata: sizes, collection names, SKUs. Wide-tracked uppercase grotesque
+   is the workwear/label convention -- it replaces the mono that used to do
+   this job, and saves a whole font family. */
+.eyebrow {
+  font-size: var(--step--2);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--bone-subtle);
+  font-weight: 500;
+}
+
+.rule-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.9rem;
+  font-size: var(--step--2);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--bone-subtle);
+  font-weight: 500;
+}
+.rule-label .rule {
+  display: block;
+  width: 2rem;
+  height: 1px;
+  background: var(--line-strong);
+}
+
+/* Display headings. Tight tracking + tight leading is what separates
+   editorial setting from default UI setting. */
+.display {
+  font-size: var(--step-4);
+  line-height: 0.94;
+  letter-spacing: -0.035em;
+  font-weight: 600;
+  text-wrap: balance;
+}
+@media (min-width: 640px) {
+  .display { font-size: var(--step-5); }
+}
+
+.section-title {
+  font-size: var(--step-1);
+  letter-spacing: -0.015em;
+  font-weight: 600;
+}
+@media (min-width: 640px) {
+  .section-title { font-size: var(--step-2); }
+}
+
+/* ---------------------------------------------------------------------------
+   Controls
+   --------------------------------------------------------------------------- */
+.btn-primary,
+.btn-ghost {
+  display: inline-flex;
+  height: 3rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius);
+  padding-inline: var(--space-8);
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  /* Labels are short by design; wrapping one onto two lines breaks the
+     control's rhythm and was happening in the hero's narrow column. */
+  white-space: nowrap;
+  transition: background-color 0.2s var(--ease), color 0.2s var(--ease),
+    border-color 0.2s var(--ease);
+}
+
+.btn-primary {
+  background: var(--bone);
+  color: var(--ink);
+  border: 1px solid var(--bone);
+}
+.btn-primary:hover {
+  background: transparent;
+  color: var(--bone);
+}
+
+.btn-ghost {
+  color: var(--bone-muted);
+  border: 1px solid var(--line-strong);
+}
+.btn-ghost:hover {
+  border-color: var(--bone);
+  color: var(--bone);
+}
+
+.link-quiet {
+  font-size: var(--step--1);
+  color: var(--bone-muted);
+  text-underline-offset: 4px;
+  transition: color 0.2s var(--ease);
+}
+.link-quiet:hover {
+  color: var(--bone);
+  text-decoration: underline;
+}
+
+/* ---------------------------------------------------------------------------
+   Product frame.
+
+   4:5 portrait, not square. Portrait is the fashion-catalogue standard: it
+   gives a garment room to be a garment instead of a thumbnail, and it is
+   most of the difference between a grid that reads editorial and one that
+   reads like a database table.
+   --------------------------------------------------------------------------- */
+.card-frame {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--ink-raised);
+}
+
+/* ---------------------------------------------------------------------------
+   Focus. The design removes default outlines on several dark controls, so
+   this has to be unambiguous -- bone on near-black is ~13:1.
+   --------------------------------------------------------------------------- */
+:focus-visible {
+  outline: 2px solid var(--bone);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

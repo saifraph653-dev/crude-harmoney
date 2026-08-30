@@ -1,0 +1,248 @@
+[
+  {
+    "slug": "offset-01",
+    "name": "Offset 01",
+    "collection": "classic",
+    "displayOrder": 1,
+    "description": "Two squares, one pushed off the other, the overlap cut away. Small on the chest in cream vinyl. 240gsm combed cotton, boxy cut, ribbed collar that holds its shape after the wash.",
+    "status": "coming_soon",
+    "imagePath": "/products/offset-01.jpg",
+    "imageWidth": 1400,
+    "imageHeight": 1757,
+    "variants": [
+      {
+        "size": "S",
+        "sku": "CH-OFF-S",
+        "priceCents": 18000,
+        "stockCount": 10,
+        "sortOrder": 1
+      },
+      {
+        "size": "M",
+        "sku": "CH-OFF-M",
+        "priceCents": 18000,
+        "stockCount": 16,
+        "sortOrder": 2
+      },
+      {
+        "size": "L",
+        "sku": "CH-OFF-L",
+        "priceCents": 18000,
+        "stockCount": 16,
+        "sortOrder": 3
+      },
+      {
+        "size": "XL",
+        "sku": "CH-OFF-XL",
+        "priceCents": 18000,
+        "stockCount": 10,
+        "sortOrder": 4
+      }
+    ]
+  },
+  {
+    "slug": "ridge-02",
+    "name": "Ridge 02",
+    "collection": "classic",
+    "displayOrder": 2,
+    "description": "Four bands, each shifted off the one above. Pressed in black on an off-white body, with VOL. 01 set underneath.",
+    "status": "coming_soon",
+    "imagePath": "/products/ridge-02.jpg",
+    "imageWidth": 1400,
+    "imageHeight": 1757,
+    "variants": [
+      {
+        "size": "S",
+        "sku": "CH-RDG-S",
+        "priceCents": 18000,
+        "stockCount": 10,
+        "sortOrder": 1
+      },
+      {
+        "size": "M",
+        "sku": "CH-RDG-M",
+        "priceCents": 18000,
+        "stockCount": 16,
+        "sortOrder": 2
+      },
+      {
+        "size": "L",
+        "sku": "CH-RDG-L",
+        "priceCents": 18000,
+        "stockCount": 16,
+        "sortOrder": 3
+      },
+      {
+        "size": "XL",
+        "sku": "CH-RDG-XL",
+        "priceCents": 18000,
+        "stockCount": 10,
+        "sortOrder": 4
+      }
+    ]
+  },
+  {
+    "slug": "margin-03",
+    "name": "Margin 03",
+    "collection": "classic",
+    "displayOrder": 3,
+    "description": "A block and its rule, set out of line. Black on heather grey, held left of centre so it sits off the middle of the chest.",
+    "status": "coming_soon",
+    "imagePath": "/products/margin-03.jpg",
+    "imageWidth": 1400,
+    "imageHeight": 1757,
+    "variants": [
+      {
+        "size": "S",
+        "sku": "CH-MRG-S",
+        "priceCents": 18000,
+        "stockCount": 10,
+        "sortOrder": 1
+      },
+      {
+        "size": "M",
+        "sku": "CH-MRG-M",
+        "priceCents": 18000,
+        "stockCount": 16,
+        "sortOrder": 2
+      },
+      {
+        "size": "L",
+        "sku": "CH-MRG-L",
+        "priceCents": 18000,
+        "stockCount": 16,
+        "sortOrder": 3
+      },
+      {
+        "size": "XL",
+        "sku": "CH-MRG-XL",
+        "priceCents": 18000,
+        "stockCount": 10,
+        "sortOrder": 4
+      }
+    ]
+  },
+  {
+    "slug": "seam-04",
+    "name": "Seam 04",
+    "collection": "classic",
+    "displayOrder": 4,
+    "description": "Two runs that should meet level and do not. Pressed full length down the front in cream. Heavyweight hood, kangaroo pocket, ribbed cuffs and hem.",
+    "status": "coming_soon",
+    "imagePath": "/products/seam-04.jpg",
+    "imageWidth": 1400,
+    "imageHeight": 1757,
+    "variants": [
+      {
+        "size": "S",
+        "sku": "CH-SEA-S",
+        "priceCents": 32000,
+        "stockCount": 10,
+        "sortOrder": 1
+      },
+      {
+        "size": "M",
+        "sku": "CH-SEA-M",
+        "priceCents": 32000,
+        "stockCount": 16,
+        "sortOrder": 2
+      },
+      {
+        "size": "L",
+        "sku": "CH-SEA-L",
+        "priceCents": 32000,
+        "stockCount": 16,
+        "sortOrder": 3
+      },
+      {
+        "size": "XL",
+        "sku": "CH-SEA-XL",
+        "priceCents": 32000,
+        "stockCount": 10,
+        "sortOrder": 4
+      }
+    ]
+  },
+  {
+    "slug": "field-05",
+    "name": "Field 05",
+    "collection": "classic",
+    "displayOrder": 5,
+    "description": "A grid with one row walked out of step, DOHA set small beneath it. Cream on charcoal.",
+    "status": "coming_soon",
+    "imagePath": "/products/field-05.jpg",
+    "imageWidth": 1400,
+    "imageHeight": 1757,
+    "variants": [
+      {
+        "size": "S",
+        "sku": "CH-FLD-S",
+        "priceCents": 32000,
+        "stockCount": 10,
+        "sortOrder": 1
+      },
+      {
+        "size": "M",
+        "sku": "CH-FLD-M",
+        "priceCents": 32000,
+        "stockCount": 16,
+        "sortOrder": 2
+      },
+      {
+        "size": "L",
+        "sku": "CH-FLD-L",
+        "priceCents": 32000,
+        "stockCount": 16,
+        "sortOrder": 3
+      },
+      {
+        "size": "XL",
+        "sku": "CH-FLD-XL",
+        "priceCents": 32000,
+        "stockCount": 10,
+        "sortOrder": 4
+      }
+    ]
+  },
+  {
+    "slug": "bias-06",
+    "name": "Bias 06",
+    "collection": "classic",
+    "displayOrder": 6,
+    "description": "A square split on the diagonal and drawn apart. Black on heather grey.",
+    "status": "coming_soon",
+    "imagePath": "/products/bias-06.jpg",
+    "imageWidth": 1400,
+    "imageHeight": 1757,
+    "variants": [
+      {
+        "size": "S",
+        "sku": "CH-BIA-S",
+        "priceCents": 32000,
+        "stockCount": 10,
+        "sortOrder": 1
+      },
+      {
+        "size": "M",
+        "sku": "CH-BIA-M",
+        "priceCents": 32000,
+        "stockCount": 16,
+        "sortOrder": 2
+      },
+      {
+        "size": "L",
+        "sku": "CH-BIA-L",
+        "priceCents": 32000,
+        "stockCount": 16,
+        "sortOrder": 3
+      },
+      {
+        "size": "XL",
+        "sku": "CH-BIA-XL",
+        "priceCents": 32000,
+        "stockCount": 10,
+        "sortOrder": 4
+      }
+    ]
+  }
+]
