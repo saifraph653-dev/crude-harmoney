@@ -13,8 +13,8 @@ export default async function OrderLookupPage() {
 
   return (
     <main className="mx-auto max-w-lg px-6 py-12">
-      <h1 className="text-xl font-semibold">Track your order</h1>
-      <p className="mt-1 text-sm text-zinc-500">
+      <h1 className="section-title">Track your order</h1>
+      <p className="mt-1 text-sm text-muted">
         Enter your order number and the email you used at checkout.
       </p>
       <div className="mt-6">

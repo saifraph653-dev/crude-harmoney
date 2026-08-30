@@ -4,6 +4,7 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import { BAG_COOKIE, bagUnits, parseBag } from "@/lib/cart";
 import { Wordmark } from "@/components/Wordmark";
+import { getSiteUrl } from "@/lib/site-url";
 import "./globals.css";
 
 // Archivo carries the whole UI: a grotesque descended from 19th-century
@@ -34,7 +35,11 @@ export const metadata: Metadata = {
   },
   description:
     "Modern vintage out of Doha. Heavyweight blanks, hand-pressed marks, counted runs.",
+  metadataBase: new URL(getSiteUrl()),
+  alternates: { canonical: "/" },
   openGraph: {
+    siteName: "Crude Harmony",
+    locale: "en",
     title: "Crude Harmony",
     description:
       "Modern vintage out of Doha. Heavyweight blanks, hand-pressed marks, counted runs.",

@@ -15,8 +15,8 @@ export default async function CheckoutSuccessPage(props: PageProps<"/checkout/su
 
   return (
     <main className="mx-auto max-w-lg px-6 py-12 text-center">
-      <h1 className="text-xl font-semibold">Thanks{orderNumber ? `, order ${orderNumber}` : ""}</h1>
-      <p className="mt-2 text-sm text-zinc-500">
+      <h1 className="section-title">Thanks{orderNumber ? `, order ${orderNumber}` : ""}</h1>
+      <p className="mt-2 text-sm text-muted">
         We&apos;re confirming your payment now. You&apos;ll get an email once
         it&apos;s confirmed -- this page updating doesn&apos;t mean the order
         is confirmed yet.

@@ -38,10 +38,10 @@ export default async function DropsPage() {
         </p>
 
         {anyUpcoming ? (
-          <p className="mt-6 inline-flex items-center gap-2.5 rounded-full border border-border-strong bg-surface px-4 py-2.5 text-sm text-muted">
+          <p className="mt-6 inline-flex items-center gap-2.5 rounded-[2px] border border-border-strong bg-surface px-4 py-2.5 text-sm text-muted">
             <span
               aria-hidden
-              className="inline-block h-1.5 w-1.5 rounded-full bg-accent"
+              className="inline-block h-1.5 w-1.5 rounded-[2px] bg-accent"
             />
             Not released yet — nothing here can be bought today.
           </p>

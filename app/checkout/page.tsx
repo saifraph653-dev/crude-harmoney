@@ -95,7 +95,7 @@ function CheckoutError({ message }: { message: string }) {
       <p className="text-muted">{message}</p>
       <Link
         href="/drops"
-        className="mt-6 inline-flex h-12 items-center justify-center rounded-full border border-border-strong px-6 text-sm font-medium transition-colors hover:border-foreground"
+        className="mt-6 inline-flex h-12 items-center justify-center rounded-[2px] border border-border-strong px-6 text-sm font-medium transition-colors hover:border-foreground"
       >
         Back to drops
       </Link>

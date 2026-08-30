@@ -35,13 +35,13 @@ export function ProductGrid({
                 ) : null}
 
                 {product.collection === "limited" && !ended ? (
-                  <span className="absolute top-2.5 left-2.5 rounded-full bg-accent px-2.5 py-1 text-[0.625rem] font-semibold tracking-wider text-accent-foreground uppercase">
+                  <span className="absolute top-2.5 left-2.5 rounded-[2px] bg-accent px-2.5 py-1 text-[0.625rem] font-semibold tracking-wider text-accent-foreground uppercase">
                     Limited
                   </span>
                 ) : null}
 
                 {ended ? (
-                  <span className="absolute top-2.5 left-2.5 rounded-full border border-border-strong bg-background/85 px-2.5 py-1 text-[0.625rem] font-semibold tracking-wider text-muted uppercase">
+                  <span className="absolute top-2.5 left-2.5 rounded-[2px] border border-border-strong bg-background/85 px-2.5 py-1 text-[0.625rem] font-semibold tracking-wider text-muted uppercase">
                     Sold out
                   </span>
                 ) : null}
