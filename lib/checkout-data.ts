@@ -9,6 +9,7 @@ export type CheckoutVariant = {
   productName: string;
   productSlug: string;
   productStatus: "draft" | "live" | "ended";
+  imagePath: string | null;
 };
 
 // Deliberately not "use cache" -- this backs the checkout page, which is
@@ -21,7 +22,7 @@ export async function getCheckoutVariant(variantId: string): Promise<CheckoutVar
   const { data, error } = await supabase
     .from("variants")
     .select(
-      "id, size, price_cents, stock_count, products(name, slug, status, currency)",
+      "id, size, price_cents, stock_count, products(name, slug, status, currency, image_path)",
     )
     .eq("id", variantId)
     .maybeSingle();
@@ -40,6 +41,7 @@ export async function getCheckoutVariant(variantId: string): Promise<CheckoutVar
     productName: product.name,
     productSlug: product.slug,
     productStatus: product.status,
+    imagePath: product.image_path ?? null,
   };
 }
 
@@ -59,7 +61,7 @@ export async function getCheckoutVariants(
   const { data, error } = await supabase
     .from("variants")
     .select(
-      "id, size, price_cents, stock_count, products(name, slug, status, currency)",
+      "id, size, price_cents, stock_count, products(name, slug, status, currency, image_path)",
     )
     .in("id", variantIds);
 
@@ -78,6 +80,7 @@ export async function getCheckoutVariants(
       productName: product.name,
       productSlug: product.slug,
       productStatus: product.status,
+      imagePath: product.image_path ?? null,
     });
   }
 

@@ -6,9 +6,9 @@
     "displayOrder": 1,
     "description": "Two squares, one pushed off the other, the overlap cut away. Small on the chest in cream vinyl. 240gsm combed cotton, boxy cut, ribbed collar that holds its shape after the wash.",
     "status": "coming_soon",
-    "imagePath": "/products/offset-01.svg",
-    "imageWidth": 1000,
-    "imageHeight": 1250,
+    "imagePath": "/products/offset-01.jpg",
+    "imageWidth": 1400,
+    "imageHeight": 1757,
     "variants": [
       {
         "size": "S",
@@ -47,9 +47,9 @@
     "displayOrder": 2,
     "description": "Four bands, each shifted off the one above. Pressed in black on an off-white body, with VOL. 01 set underneath.",
     "status": "coming_soon",
-    "imagePath": "/products/ridge-02.svg",
-    "imageWidth": 1000,
-    "imageHeight": 1250,
+    "imagePath": "/products/ridge-02.jpg",
+    "imageWidth": 1400,
+    "imageHeight": 1757,
     "variants": [
       {
         "size": "S",
@@ -88,9 +88,9 @@
     "displayOrder": 3,
     "description": "A block and its rule, set out of line. Black on heather grey, held left of centre so it sits off the middle of the chest.",
     "status": "coming_soon",
-    "imagePath": "/products/margin-03.svg",
-    "imageWidth": 1000,
-    "imageHeight": 1250,
+    "imagePath": "/products/margin-03.jpg",
+    "imageWidth": 1400,
+    "imageHeight": 1757,
     "variants": [
       {
         "size": "S",
@@ -129,9 +129,9 @@
     "displayOrder": 4,
     "description": "Two runs that should meet level and do not. Pressed full length down the front in cream. Heavyweight hood, kangaroo pocket, ribbed cuffs and hem.",
     "status": "coming_soon",
-    "imagePath": "/products/seam-04.svg",
-    "imageWidth": 1000,
-    "imageHeight": 1250,
+    "imagePath": "/products/seam-04.jpg",
+    "imageWidth": 1400,
+    "imageHeight": 1757,
     "variants": [
       {
         "size": "S",
@@ -170,9 +170,9 @@
     "displayOrder": 5,
     "description": "A grid with one row walked out of step, DOHA set small beneath it. Cream on charcoal.",
     "status": "coming_soon",
-    "imagePath": "/products/field-05.svg",
-    "imageWidth": 1000,
-    "imageHeight": 1250,
+    "imagePath": "/products/field-05.jpg",
+    "imageWidth": 1400,
+    "imageHeight": 1757,
     "variants": [
       {
         "size": "S",
@@ -211,9 +211,9 @@
     "displayOrder": 6,
     "description": "A square split on the diagonal and drawn apart. Black on heather grey.",
     "status": "coming_soon",
-    "imagePath": "/products/bias-06.svg",
-    "imageWidth": 1000,
-    "imageHeight": 1250,
+    "imagePath": "/products/bias-06.jpg",
+    "imageWidth": 1400,
+    "imageHeight": 1757,
     "variants": [
       {
         "size": "S",

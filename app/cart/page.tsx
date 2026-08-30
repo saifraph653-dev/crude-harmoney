@@ -67,12 +67,12 @@ export default async function CartPage() {
           >
             <div className="w-20 shrink-0 sm:w-24">
               <div className="card-frame">
-                {line.variant ? (
+                {line.variant?.imagePath ? (
                   <Image
-                    src={`/products/${line.variant.productSlug}.svg`}
+                    src={line.variant.imagePath}
                     alt=""
-                    width={1000}
-                    height={1250}
+                    width={1400}
+                    height={1757}
                     sizes="96px"
                     className="h-full w-full object-cover"
                   />
