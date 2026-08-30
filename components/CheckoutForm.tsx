@@ -6,7 +6,7 @@ import {
   emptyCheckoutState,
   type CheckoutFieldName,
   type CheckoutState,
-} from "@/lib/checkout";
+} from "@/lib/checkout-constants";
 import { submitCheckout } from "@/app/checkout/actions";
 
 export function CheckoutForm() {

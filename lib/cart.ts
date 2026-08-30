@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { MAX_QUANTITY_PER_ORDER } from "./checkout";
+import { MAX_QUANTITY_PER_ORDER } from "./checkout-constants";
 
 // The bag is a list of *requests* -- variant ids and quantities, nothing
 // else. No prices, no names, no availability. Everything a customer could

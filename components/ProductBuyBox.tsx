@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { addToBag } from "@/app/cart/actions";
 import type { VariantSummary } from "@/lib/dto/products";
-import { MAX_QUANTITY_PER_ORDER } from "@/lib/checkout";
+import { MAX_QUANTITY_PER_ORDER } from "@/lib/checkout-constants";
 import { formatPrice } from "@/lib/format";
 
 const POLL_INTERVAL_MS = 10_000;
@@ -45,11 +45,39 @@ export function ProductBuyBox({
       }
     }
 
+    // Poll only while the tab is actually being looked at. A background
+    // tab left open all day was firing a request every 10s forever, which
+    // costs the customer battery and us function invocations for a number
+    // nobody is reading. Checkout re-verifies stock server-side regardless,
+    // so a stale count in a hidden tab is harmless.
+    let interval: ReturnType<typeof setInterval> | null = null;
+
+    function start() {
+      if (interval !== null) return;
+      interval = setInterval(fetchStock, POLL_INTERVAL_MS);
+    }
+    function stop() {
+      if (interval === null) return;
+      clearInterval(interval);
+      interval = null;
+    }
+    function onVisibilityChange() {
+      if (document.visibilityState === "visible") {
+        fetchStock();
+        start();
+      } else {
+        stop();
+      }
+    }
+
     fetchStock();
-    const interval = setInterval(fetchStock, POLL_INTERVAL_MS);
+    if (document.visibilityState === "visible") start();
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
     return () => {
       cancelled = true;
-      clearInterval(interval);
+      stop();
+      document.removeEventListener("visibilitychange", onVisibilityChange);
     };
   }, [variants]);
 
