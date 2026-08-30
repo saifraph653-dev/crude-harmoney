@@ -1,39 +1,39 @@
 [
   {
-    "slug": "offset-01",
-    "name": "Offset 01",
+    "slug": "wordmark-tee",
+    "name": "Wordmark Tee",
     "collection": "classic",
     "displayOrder": 1,
-    "description": "Two squares, one pushed off the other, the overlap cut away. Small on the chest in cream vinyl. 240gsm combed cotton, boxy cut, ribbed collar that holds its shape after the wash.",
+    "description": "The house name stacked across the back in cream, with a rule and DOHA \u00b7 QATAR set beneath it. Small chest mark on the front. Heavyweight black cotton, boxy cut, ribbed collar.",
     "status": "coming_soon",
-    "imagePath": "/products/offset-01.jpg",
+    "imagePath": "/products/wordmark-tee.jpg",
     "imageWidth": 1400,
     "imageHeight": 1757,
     "variants": [
       {
         "size": "S",
-        "sku": "CH-OFF-S",
+        "sku": "CH-WRD-S",
         "priceCents": 18000,
         "stockCount": 10,
         "sortOrder": 1
       },
       {
         "size": "M",
-        "sku": "CH-OFF-M",
+        "sku": "CH-WRD-M",
         "priceCents": 18000,
         "stockCount": 16,
         "sortOrder": 2
       },
       {
         "size": "L",
-        "sku": "CH-OFF-L",
+        "sku": "CH-WRD-L",
         "priceCents": 18000,
         "stockCount": 16,
         "sortOrder": 3
       },
       {
         "size": "XL",
-        "sku": "CH-OFF-XL",
+        "sku": "CH-WRD-XL",
         "priceCents": 18000,
         "stockCount": 10,
         "sortOrder": 4
@@ -41,40 +41,40 @@
     ]
   },
   {
-    "slug": "ridge-02",
-    "name": "Ridge 02",
+    "slug": "volume-tee",
+    "name": "Volume Tee",
     "collection": "classic",
     "displayOrder": 2,
-    "description": "Four bands, each shifted off the one above. Pressed in black on an off-white body, with VOL. 01 set underneath.",
+    "description": "The first volume, set as a single numeral across the back. Small 01 at the left chest. Heavyweight off-white cotton, boxy cut, ribbed collar.",
     "status": "coming_soon",
-    "imagePath": "/products/ridge-02.jpg",
+    "imagePath": "/products/volume-tee.jpg",
     "imageWidth": 1400,
     "imageHeight": 1757,
     "variants": [
       {
         "size": "S",
-        "sku": "CH-RDG-S",
+        "sku": "CH-VOL-S",
         "priceCents": 18000,
         "stockCount": 10,
         "sortOrder": 1
       },
       {
         "size": "M",
-        "sku": "CH-RDG-M",
+        "sku": "CH-VOL-M",
         "priceCents": 18000,
         "stockCount": 16,
         "sortOrder": 2
       },
       {
         "size": "L",
-        "sku": "CH-RDG-L",
+        "sku": "CH-VOL-L",
         "priceCents": 18000,
         "stockCount": 16,
         "sortOrder": 3
       },
       {
         "size": "XL",
-        "sku": "CH-RDG-XL",
+        "sku": "CH-VOL-XL",
         "priceCents": 18000,
         "stockCount": 10,
         "sortOrder": 4
@@ -82,40 +82,40 @@
     ]
   },
   {
-    "slug": "margin-03",
-    "name": "Margin 03",
+    "slug": "spec-tee",
+    "name": "Spec Tee",
     "collection": "classic",
     "displayOrder": 3,
-    "description": "A block and its rule, set out of line. Black on heather grey, held left of centre so it sits off the middle of the chest.",
+    "description": "How the pieces are made, set as a justified block and printed like a spec sheet. Small mark on the front. Heather grey heavyweight cotton.",
     "status": "coming_soon",
-    "imagePath": "/products/margin-03.jpg",
+    "imagePath": "/products/spec-tee.jpg",
     "imageWidth": 1400,
     "imageHeight": 1757,
     "variants": [
       {
         "size": "S",
-        "sku": "CH-MRG-S",
+        "sku": "CH-SPC-S",
         "priceCents": 18000,
         "stockCount": 10,
         "sortOrder": 1
       },
       {
         "size": "M",
-        "sku": "CH-MRG-M",
+        "sku": "CH-SPC-M",
         "priceCents": 18000,
         "stockCount": 16,
         "sortOrder": 2
       },
       {
         "size": "L",
-        "sku": "CH-MRG-L",
+        "sku": "CH-SPC-L",
         "priceCents": 18000,
         "stockCount": 16,
         "sortOrder": 3
       },
       {
         "size": "XL",
-        "sku": "CH-MRG-XL",
+        "sku": "CH-SPC-XL",
         "priceCents": 18000,
         "stockCount": 10,
         "sortOrder": 4
@@ -123,40 +123,40 @@
     ]
   },
   {
-    "slug": "seam-04",
-    "name": "Seam 04",
+    "slug": "spine-hoodie",
+    "name": "Spine Hoodie",
     "collection": "classic",
     "displayOrder": 4,
-    "description": "Two runs that should meet level and do not. Pressed full length down the front in cream. Heavyweight hood, kangaroo pocket, ribbed cuffs and hem.",
+    "description": "The name run vertically down the centre back in cream. Small chest mark on the front. Heavyweight black cotton, kangaroo pocket, ribbed cuffs and hem.",
     "status": "coming_soon",
-    "imagePath": "/products/seam-04.jpg",
+    "imagePath": "/products/spine-hoodie.jpg",
     "imageWidth": 1400,
     "imageHeight": 1757,
     "variants": [
       {
         "size": "S",
-        "sku": "CH-SEA-S",
+        "sku": "CH-SPN-S",
         "priceCents": 32000,
         "stockCount": 10,
         "sortOrder": 1
       },
       {
         "size": "M",
-        "sku": "CH-SEA-M",
+        "sku": "CH-SPN-M",
         "priceCents": 32000,
         "stockCount": 16,
         "sortOrder": 2
       },
       {
         "size": "L",
-        "sku": "CH-SEA-L",
+        "sku": "CH-SPN-L",
         "priceCents": 32000,
         "stockCount": 16,
         "sortOrder": 3
       },
       {
         "size": "XL",
-        "sku": "CH-SEA-XL",
+        "sku": "CH-SPN-XL",
         "priceCents": 32000,
         "stockCount": 10,
         "sortOrder": 4
@@ -164,40 +164,40 @@
     ]
   },
   {
-    "slug": "field-05",
-    "name": "Field 05",
+    "slug": "bar-hoodie",
+    "name": "Bar Hoodie",
     "collection": "classic",
     "displayOrder": 5,
-    "description": "A grid with one row walked out of step, DOHA set small beneath it. Cream on charcoal.",
+    "description": "Wordmark over a solid bar, DOHA \u2014 VOL. 01 beneath. Small DOHA at the left chest. Charcoal heavyweight cotton, kangaroo pocket, ribbed cuffs and hem.",
     "status": "coming_soon",
-    "imagePath": "/products/field-05.jpg",
+    "imagePath": "/products/bar-hoodie.jpg",
     "imageWidth": 1400,
     "imageHeight": 1757,
     "variants": [
       {
         "size": "S",
-        "sku": "CH-FLD-S",
+        "sku": "CH-BAR-S",
         "priceCents": 32000,
         "stockCount": 10,
         "sortOrder": 1
       },
       {
         "size": "M",
-        "sku": "CH-FLD-M",
+        "sku": "CH-BAR-M",
         "priceCents": 32000,
         "stockCount": 16,
         "sortOrder": 2
       },
       {
         "size": "L",
-        "sku": "CH-FLD-L",
+        "sku": "CH-BAR-L",
         "priceCents": 32000,
         "stockCount": 16,
         "sortOrder": 3
       },
       {
         "size": "XL",
-        "sku": "CH-FLD-XL",
+        "sku": "CH-BAR-XL",
         "priceCents": 32000,
         "stockCount": 10,
         "sortOrder": 4
@@ -205,40 +205,40 @@
     ]
   },
   {
-    "slug": "bias-06",
-    "name": "Bias 06",
+    "slug": "harmony-hoodie",
+    "name": "Harmony Hoodie",
     "collection": "classic",
     "displayOrder": 6,
-    "description": "A square split on the diagonal and drawn apart. Black on heather grey.",
+    "description": "A single word across the back, CRUDE set small above it. Small mark on the front. Heather grey heavyweight cotton, kangaroo pocket, ribbed cuffs and hem.",
     "status": "coming_soon",
-    "imagePath": "/products/bias-06.jpg",
+    "imagePath": "/products/harmony-hoodie.jpg",
     "imageWidth": 1400,
     "imageHeight": 1757,
     "variants": [
       {
         "size": "S",
-        "sku": "CH-BIA-S",
+        "sku": "CH-HRM-S",
         "priceCents": 32000,
         "stockCount": 10,
         "sortOrder": 1
       },
       {
         "size": "M",
-        "sku": "CH-BIA-M",
+        "sku": "CH-HRM-M",
         "priceCents": 32000,
         "stockCount": 16,
         "sortOrder": 2
       },
       {
         "size": "L",
-        "sku": "CH-BIA-L",
+        "sku": "CH-HRM-L",
         "priceCents": 32000,
         "stockCount": 16,
         "sortOrder": 3
       },
       {
         "size": "XL",
-        "sku": "CH-BIA-XL",
+        "sku": "CH-HRM-XL",
         "priceCents": 32000,
         "stockCount": 10,
         "sortOrder": 4

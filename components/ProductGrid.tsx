@@ -50,8 +50,11 @@ export function ProductGrid({
                 ) : null}
               </div>
 
-              <div className="mt-3 flex items-baseline justify-between gap-3">
-                <p className="truncate text-sm font-medium">{product.name}</p>
+              {/* Stacked on phones, on one line from tablet up. Side by side
+                  at 390px in a two-up grid, a longer name and its price
+                  fight for the same row and the name gets truncated. */}
+              <div className="mt-3 flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-3">
+                <p className="text-sm font-medium">{product.name}</p>
                 {!ended && product.fromPriceCents !== null ? (
                   <p className="shrink-0 text-sm text-muted">
                     {formatPrice(product.fromPriceCents, product.currency)}
