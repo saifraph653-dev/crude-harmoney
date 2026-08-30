@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Archivo, Instrument_Serif } from "next/font/google";
 import Link from "next/link";
+import { cookies } from "next/headers";
+import { BAG_COOKIE, bagUnits, parseBag } from "@/lib/cart";
 import { Wordmark } from "@/components/Wordmark";
 import "./globals.css";
 
@@ -47,7 +49,10 @@ export const viewport: Viewport = {
   colorScheme: "dark",
 };
 
-function Header() {
+async function Header() {
+  const store = await cookies();
+  const units = bagUnits(parseBag(store.get(BAG_COOKIE)?.value));
+
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background">
       <nav className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 sm:h-16 sm:px-6">
@@ -75,6 +80,12 @@ function Header() {
             className="px-3 py-2 text-xs font-medium tracking-[0.14em] text-muted uppercase transition-colors hover:text-foreground"
           >
             Track
+          </Link>
+          <Link
+            href="/cart"
+            className="px-3 py-2 text-xs font-medium tracking-[0.14em] text-muted uppercase transition-colors hover:text-foreground"
+          >
+            Bag{units > 0 ? ` (${units})` : ""}
           </Link>
         </div>
       </nav>

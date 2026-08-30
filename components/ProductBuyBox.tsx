@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { addToBag } from "@/app/cart/actions";
 import type { VariantSummary } from "@/lib/dto/products";
 import { MAX_QUANTITY_PER_ORDER } from "@/lib/checkout";
 import { formatPrice } from "@/lib/format";
@@ -22,7 +22,6 @@ export function ProductBuyBox({
   variants: VariantSummary[];
   currency: string;
 }) {
-  const router = useRouter();
   const [stock, setStock] = useState<Record<string, number>>({});
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
@@ -77,11 +76,6 @@ export function ProductBuyBox({
     setQuantity(1);
   }
 
-  function handleCheckout() {
-    if (!selectedId) return;
-    router.push(`/checkout?variant=${selectedId}&qty=${quantity}`);
-  }
-
   const selectedVariant = variants.find((v) => v.id === selectedId) ?? null;
 
   return (
@@ -101,7 +95,7 @@ export function ProductBuyBox({
             return (
               <label
                 key={variant.id}
-                className={`relative flex h-14 cursor-pointer flex-col items-center justify-center rounded-xl border text-sm transition-colors ${
+                className={`relative flex h-14 cursor-pointer flex-col items-center justify-center rounded-[2px] border text-sm transition-colors ${
                   selected
                     ? "border-foreground bg-foreground text-background"
                     : soldOut
@@ -134,7 +128,7 @@ export function ProductBuyBox({
                 {soldOut ? (
                   <span
                     aria-hidden
-                    className="pointer-events-none absolute inset-0 rounded-xl"
+                    className="pointer-events-none absolute inset-0"
                     style={{
                       background:
                         "linear-gradient(to top left, transparent calc(50% - 1px), var(--border-strong) 50%, transparent calc(50% + 1px))",
@@ -148,7 +142,7 @@ export function ProductBuyBox({
       </fieldset>
 
       {allSoldOut ? (
-        <p className="mt-5 rounded-xl border border-border bg-inset px-4 py-3 text-sm text-muted">
+        <p className="mt-5 rounded-[2px] border border-border bg-inset px-4 py-3 text-sm text-muted">
           Every size is sold out. This run is finished.
         </p>
       ) : null}
@@ -165,7 +159,7 @@ export function ProductBuyBox({
               onChange={(e) => setQuantity(Number(e.target.value))}
               // 16px font size: anything smaller makes iOS Safari zoom the
               // viewport when the control receives focus.
-              className="h-11 rounded-xl border border-border-strong bg-surface px-3 text-base"
+              className="h-11 rounded-[2px] border border-border-strong bg-surface px-3 text-base"
             >
               {quantityOptions.map((n) => (
                 <option key={n} value={n}>
@@ -178,13 +172,16 @@ export function ProductBuyBox({
             </span>
           </div>
 
-          <button
-            type="button"
-            onClick={handleCheckout}
-            className="flex h-14 w-full items-center justify-center rounded-full bg-accent px-6 text-sm font-semibold text-accent-foreground transition-opacity hover:opacity-90 active:opacity-80"
-          >
-            Checkout · {formatPrice(selectedVariant.priceCents * quantity, currency)}
-          </button>
+          {/* A form rather than an onClick: the add still works with
+              JavaScript off, and the server action is the only thing that
+              can write the bag. */}
+          <form action={addToBag}>
+            <input type="hidden" name="variantId" value={selectedVariant.id} />
+            <input type="hidden" name="quantity" value={quantity} />
+            <button type="submit" className="btn-primary w-full">
+              Add to bag
+            </button>
+          </form>
         </div>
       ) : (
         !allSoldOut && (

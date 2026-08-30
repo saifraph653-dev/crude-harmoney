@@ -60,6 +60,16 @@ export const checkoutFormSchema = z
 
 export type CheckoutFormInput = z.infer<typeof checkoutFormSchema>;
 
+// The bag-driven checkout carries no variant or quantity in the form: the
+// lines come from the server-side bag cookie, so the browser cannot name
+// its own price or smuggle in a variant the customer never selected. The
+// single-variant schema above is retained for the direct
+// /checkout?variant=... path.
+export const checkoutDetailsSchema = checkoutFormSchema.omit({
+  variantId: true,
+  quantity: true,
+});
+
 /** Names of the fields the customer actually fills in (excludes hidden ones). */
 export type CheckoutFieldName =
   | "email"
