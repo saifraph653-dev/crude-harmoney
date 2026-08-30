@@ -2,11 +2,13 @@
 
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
+import { BAG_COOKIE, parseBag } from "@/lib/cart";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getPaymentAdapter } from "@/lib/payments";
 import { getSiteUrl } from "@/lib/site-url";
 import {
-  checkoutFormSchema,
+  checkoutDetailsSchema,
   mapReservationError,
   reservationErrorCode,
   CHECKOUT_FIELD_NAMES,
@@ -37,9 +39,7 @@ export async function submitCheckout(
     return { formError: mapReservationError("rate_limited"), fieldErrors: {}, values };
   }
 
-  const parsed = checkoutFormSchema.safeParse({
-    variantId: formData.get("variantId"),
-    quantity: formData.get("quantity"),
+  const parsed = checkoutDetailsSchema.safeParse({
     email: formData.get("email"),
     shippingName: formData.get("shippingName"),
     shippingAddressLine1: formData.get("shippingAddressLine1"),
@@ -63,8 +63,8 @@ export async function submitCheckout(
     }
     const hasFieldErrors = Object.keys(fieldErrors).length > 0;
     return {
-      // If the only problems are in hidden fields (variantId/quantity),
-      // there's no field to point at -- fall back to the banner.
+      // Every field in this schema is visible, so a field error always has
+      // somewhere to render; the banner is the fallback for the rest.
       formError: hasFieldErrors ? null : mapReservationError("invalid_input"),
       fieldErrors,
       values,
@@ -72,15 +72,27 @@ export async function submitCheckout(
   }
 
   const input = parsed.data;
+
+  // The bag is read server-side. It is a list of variant ids and counts and
+  // nothing else -- no prices, no totals -- so a tampered cookie can only
+  // ask for something the database will refuse.
+  const store = await cookies();
+  const bag = parseBag(store.get(BAG_COOKIE)?.value);
+  if (bag.length === 0) {
+    return { formError: "Your bag is empty.", fieldErrors: {}, values };
+  }
+
   const admin = createAdminClient();
 
   // The database is the only source of truth on whether this succeeds --
   // see reserve_stock_and_create_order() in supabase/migrations. Every
   // field below is server-validated input, never a client-supplied price
   // or total.
-  const { data, error } = await admin.rpc("reserve_stock_and_create_order", {
-    p_variant_id: input.variantId,
-    p_quantity: input.quantity,
+  const { data, error } = await admin.rpc("reserve_stock_and_create_order_multi", {
+    p_items: bag.map((line) => ({
+      variant_id: line.variantId,
+      quantity: line.quantity,
+    })),
     p_email: input.email,
     p_shipping_name: input.shippingName,
     p_shipping_address_line1: input.shippingAddressLine1,
@@ -128,6 +140,8 @@ export async function submitCheckout(
     // back to later.
     return { formError: mapReservationError("unknown"), fieldErrors: {}, values };
   }
+
+  store.delete(BAG_COOKIE);
 
   redirect(session.redirectUrl);
 }

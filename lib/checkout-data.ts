@@ -9,6 +9,7 @@ export type CheckoutVariant = {
   productName: string;
   productSlug: string;
   productStatus: "draft" | "live" | "ended";
+  imagePath: string | null;
 };
 
 // Deliberately not "use cache" -- this backs the checkout page, which is
@@ -21,7 +22,7 @@ export async function getCheckoutVariant(variantId: string): Promise<CheckoutVar
   const { data, error } = await supabase
     .from("variants")
     .select(
-      "id, size, price_cents, stock_count, products(name, slug, status, currency)",
+      "id, size, price_cents, stock_count, products(name, slug, status, currency, image_path)",
     )
     .eq("id", variantId)
     .maybeSingle();
@@ -40,5 +41,48 @@ export async function getCheckoutVariant(variantId: string): Promise<CheckoutVar
     productName: product.name,
     productSlug: product.slug,
     productStatus: product.status,
+    imagePath: product.image_path ?? null,
   };
+}
+
+/**
+ * The same lookup for a whole bag, in one round trip rather than N.
+ *
+ * Returns only the variants that resolved; a line whose variant has since
+ * been deleted simply drops out, and the caller reconciles. Order follows
+ * the ids passed in, so the bag renders in the order it was built.
+ */
+export async function getCheckoutVariants(
+  variantIds: string[],
+): Promise<CheckoutVariant[]> {
+  if (variantIds.length === 0) return [];
+
+  const supabase = createPublicClient();
+  const { data, error } = await supabase
+    .from("variants")
+    .select(
+      "id, size, price_cents, stock_count, products(name, slug, status, currency, image_path)",
+    )
+    .in("id", variantIds);
+
+  if (error || !data) return [];
+
+  const found = new Map<string, CheckoutVariant>();
+  for (const row of data) {
+    const product = Array.isArray(row.products) ? row.products[0] : row.products;
+    if (!product) continue;
+    found.set(row.id, {
+      id: row.id,
+      size: row.size,
+      priceCents: row.price_cents,
+      currency: product.currency,
+      stockCount: row.stock_count,
+      productName: product.name,
+      productSlug: product.slug,
+      productStatus: product.status,
+      imagePath: product.image_path ?? null,
+    });
+  }
+
+  return variantIds.map((id) => found.get(id)).filter((v): v is CheckoutVariant => !!v);
 }

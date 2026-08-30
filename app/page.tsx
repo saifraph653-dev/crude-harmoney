@@ -20,46 +20,44 @@ export default async function Home() {
       {/* ------------------------------------------------------------------ */}
       <section className="relative overflow-hidden">
         <div aria-hidden className="pointer-events-none absolute inset-0">
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "radial-gradient(80% 60% at 50% -10%, #232329 0%, transparent 65%)",
-            }}
-          />
           <div className="grain absolute inset-0" />
         </div>
 
-        <div className="relative mx-auto flex max-w-5xl flex-col items-center px-5 pt-20 pb-16 text-center sm:px-6 sm:pt-32 sm:pb-24">
-          <span className="rule-label">
-            <span className="rule" aria-hidden />
-            Doha, Qatar
-            <span className="rule" aria-hidden />
-          </span>
-
-          <h1 className="mt-8 text-[2.75rem] leading-[0.92] font-semibold tracking-[-0.03em] text-balance sm:text-7xl">
-            Modern vintage,
-            <br />
-            <span className="italic">made in small runs.</span>
-          </h1>
-
-          <p className="mt-7 max-w-md text-base leading-relaxed text-muted sm:text-lg">
-            Heavyweight blanks, hand-pressed marks, counted editions. The first
-            drop has not landed yet — this is what is coming.
-          </p>
-
-          <div className="mt-9 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
-            <Link href="/drops" className="btn-primary">
-              See the collection
-            </Link>
-            <Link href="/orders/lookup" className="btn-ghost">
-              Track an order
-            </Link>
+        <div className="relative mx-auto w-full max-w-5xl px-5 pt-16 pb-14 sm:px-6 sm:pt-28 sm:pb-24">
+          {/* Metadata rail. Left-aligned and rule-separated rather than a
+              centred badge -- it reads as a garment label, not a hero chip. */}
+          <div className="flex items-center gap-4 border-b border-border pb-4">
+            <span className="eyebrow">Doha, Qatar</span>
+            <span className="eyebrow ml-auto">Vol. 01</span>
           </div>
 
-          <p className="mt-6 text-xs tracking-wider text-subtle uppercase">
-            Nothing is on sale yet
-          </p>
+          {/* Asymmetric type block. The headline is deliberately allowed to
+              run wider than the copy beneath it, and the copy is pushed off
+              the left margin into the right half -- a centred stack of
+              headline / paragraph / buttons is the template composition. */}
+          <h1 className="display mt-10 sm:mt-16">
+            Modern vintage,
+            <br />
+            <span className="serif italic">made in small runs.</span>
+          </h1>
+
+          <div className="mt-10 grid gap-8 sm:mt-14 sm:grid-cols-12 sm:gap-6">
+            <div className="sm:col-span-5 sm:col-start-7">
+              <p className="max-w-sm text-base leading-relaxed text-muted">
+                Heavyweight blanks, hand-pressed marks, counted editions. The
+                first drop has not landed yet — this is what is coming.
+              </p>
+              <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+                <Link href="/drops" className="btn-primary">
+                  See the collection
+                </Link>
+                <Link href="/orders/lookup" className="btn-ghost">
+                  Track an order
+                </Link>
+              </div>
+              <p className="eyebrow mt-6">Nothing is on sale yet</p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -70,7 +68,7 @@ export default async function Home() {
         <section className="border-t border-border">
           <div className="mx-auto w-full max-w-5xl px-5 py-14 sm:px-6 sm:py-20">
             <div className="flex items-baseline justify-between gap-4">
-              <h2 className="text-xl font-semibold tracking-tight sm:text-2xl">
+              <h2 className="section-title">
                 First look
               </h2>
               <Link href="/drops" className="link-quiet">
@@ -113,7 +111,7 @@ export default async function Home() {
       {/* ------------------------------------------------------------------ */}
       <section className="border-t border-border">
         <div className="mx-auto w-full max-w-5xl px-5 py-14 sm:px-6 sm:py-20">
-          <h2 className="text-xl font-semibold tracking-tight sm:text-2xl">
+          <h2 className="section-title">
             How it&apos;s made
           </h2>
           <dl className="mt-8 grid gap-8 sm:grid-cols-3 sm:gap-10">

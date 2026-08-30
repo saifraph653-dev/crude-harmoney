@@ -12,8 +12,8 @@ export default async function CheckoutCancelledPage(props: PageProps<"/checkout/
 
   return (
     <main className="mx-auto max-w-lg px-6 py-12 text-center">
-      <h1 className="text-xl font-semibold">Payment cancelled</h1>
-      <p className="mt-2 text-sm text-zinc-500">
+      <h1 className="section-title">Payment cancelled</h1>
+      <p className="mt-2 text-sm text-muted">
         {orderNumber ? `Order ${orderNumber} wasn't` : "Your order wasn't"} charged. If
         the item is still in stock, your reservation holds it for a few more minutes.
       </p>

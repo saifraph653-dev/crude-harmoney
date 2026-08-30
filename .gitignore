@@ -47,3 +47,6 @@ next-env.d.ts
 
 # k6 load test output
 /load-test/summary.json
+
+# Local design-system verification harness (regenerated on demand, not shipped).
+preview/

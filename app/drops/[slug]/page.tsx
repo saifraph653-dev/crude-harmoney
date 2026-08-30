@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { getSiteUrl } from "@/lib/site-url";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -20,9 +21,31 @@ export async function generateMetadata(
   const { slug } = await props.params;
   const product = await getProductDetailBySlug(slug);
   if (!product) return { title: "Not found" };
+
+  const url = `${getSiteUrl()}/drops/${product.slug}`;
+  const description = product.description.slice(0, 160);
+
   return {
     title: product.name,
-    description: product.description.slice(0, 160),
+    description,
+    // Canonical so the drop page has one address even when it is reached
+    // with tracking parameters on the end of an Instagram link.
+    alternates: { canonical: url },
+    openGraph: {
+      title: `${product.name} · Crude Harmony`,
+      description,
+      url,
+      type: "website",
+      images: product.image
+        ? [{ url: product.image.path, width: product.image.width, height: product.image.height, alt: product.name }]
+        : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${product.name} · Crude Harmony`,
+      description,
+      images: product.image ? [product.image.path] : undefined,
+    },
   };
 }
 
@@ -47,7 +70,7 @@ export default async function ProductPage(props: PageProps<"/drops/[slug]">) {
 
       <div className="mt-5 grid gap-9 sm:mt-8 sm:grid-cols-2 sm:gap-14">
         {/* Image */}
-        <div className="card-frame !rounded-2xl">
+        <div className="card-frame !rounded-[2px]">
           {product.image ? (
             <Image
               src={product.image.path}
@@ -60,7 +83,7 @@ export default async function ProductPage(props: PageProps<"/drops/[slug]">) {
             />
           ) : null}
           {isLimited && !ended ? (
-            <span className="absolute top-3 left-3 rounded-full bg-accent px-3 py-1.5 text-[0.625rem] font-semibold tracking-wider text-accent-foreground uppercase">
+            <span className="absolute top-3 left-3 rounded-[2px] bg-accent px-3 py-1.5 text-[0.625rem] font-semibold tracking-wider text-accent-foreground uppercase">
               Limited Edition
             </span>
           ) : null}
@@ -71,7 +94,7 @@ export default async function ProductPage(props: PageProps<"/drops/[slug]">) {
           <span className="eyebrow">
             {isLimited ? "Limited Edition" : "Classic Collection"}
           </span>
-          <h1 className="mt-2.5 text-2xl font-semibold tracking-[-0.02em] sm:text-4xl">
+          <h1 className="display mt-2.5 text-[2rem] sm:text-[2.75rem]">
             {product.name}
           </h1>
 
@@ -87,7 +110,7 @@ export default async function ProductPage(props: PageProps<"/drops/[slug]">) {
           ) : null}
 
           {ended ? (
-            <p className="mt-3 inline-flex w-fit rounded-full border border-border-strong px-3 py-1 text-xs text-muted">
+            <p className="mt-3 inline-flex w-fit rounded-[2px] border border-border-strong px-3 py-1 text-xs text-muted">
               This drop has ended
             </p>
           ) : null}
@@ -100,7 +123,7 @@ export default async function ProductPage(props: PageProps<"/drops/[slug]">) {
             {product.status === "live" ? (
               <ProductBuyBox variants={product.variants} currency={product.currency} />
             ) : upcoming ? (
-              <div className="rounded-2xl border border-border bg-surface p-5">
+              <div className="rounded-[2px] border border-border bg-surface p-5">
                 <p className="text-sm font-medium">Not released yet</p>
                 <p className="mt-2 text-sm leading-relaxed text-muted">
                   This piece is part of the first drop. Sizes and stock go live on
@@ -110,7 +133,7 @@ export default async function ProductPage(props: PageProps<"/drops/[slug]">) {
                   {product.variants.map((v) => (
                     <li
                       key={v.id}
-                      className="rounded-lg border border-border-strong px-3 py-1.5 text-xs text-subtle"
+                      className="rounded-[2px] border border-border-strong px-3 py-1.5 text-xs text-subtle"
                     >
                       {v.size}
                     </li>

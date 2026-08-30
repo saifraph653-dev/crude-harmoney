@@ -13,12 +13,21 @@ export default async function NotFound() {
   await connection();
 
   return (
-    <main className="flex flex-1 flex-col items-center justify-center gap-2 p-8 text-center">
-      <h1 className="text-2xl font-semibold">Page not found</h1>
-      <p className="text-zinc-500">That page doesn&apos;t exist.</p>
-      <Link href="/" className="mt-2 underline">
-        Back home
-      </Link>
+    <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col justify-center px-5 py-24 sm:px-6">
+      <p className="eyebrow">404</p>
+      <h1 className="display mt-4">
+        Nothing here,
+        <br />
+        <span className="serif italic">try the collection.</span>
+      </h1>
+      <div className="mt-10 flex flex-col gap-3 sm:flex-row">
+        <Link href="/drops" className="btn-primary">
+          See the collection
+        </Link>
+        <Link href="/" className="btn-ghost">
+          Home
+        </Link>
+      </div>
     </main>
   );
 }

@@ -17,8 +17,8 @@ export default function Error({
 
   return (
     <main className="flex flex-1 flex-col items-center justify-center gap-2 p-8 text-center">
-      <h1 className="text-2xl font-semibold">Something went wrong</h1>
-      <p className="text-zinc-500">Please try again.</p>
+      <h1 className="section-title">Something went wrong</h1>
+      <p className="text-muted">Please try again.</p>
       <button onClick={() => retry()} className="mt-2 underline">
         Try again
       </button>

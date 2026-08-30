@@ -22,14 +22,14 @@ export default async function MockCheckoutPage(props: PageProps<"/checkout/mock/
 
   return (
     <main className="mx-auto max-w-lg px-6 py-12 text-center">
-      <h1 className="text-xl font-semibold">Mock payment page</h1>
-      <p className="mt-2 text-sm text-zinc-500">
+      <h1 className="section-title">Mock payment page</h1>
+      <p className="mt-2 text-sm text-muted">
         Session {params.sessionId}. This stands in for Dibsy/Tap&apos;s hosted checkout
         until a merchant account is wired up. Order {orderNumber ?? "?"} for{" "}
         {amountCents != null && currency ? formatPrice(amountCents, currency) : "?"}{" "}
         is reserved and waiting on payment confirmation.
       </p>
-      <p className="mt-4 text-xs text-zinc-400">
+      <p className="mt-4 text-xs text-muted">
         There is deliberately no button here to simulate a payment -- that
         would be a live &quot;pay for any order for free&quot; endpoint if
         this ever shipped to production by accident. See README.md&apos;s

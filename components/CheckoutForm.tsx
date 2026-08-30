@@ -6,16 +6,10 @@ import {
   emptyCheckoutState,
   type CheckoutFieldName,
   type CheckoutState,
-} from "@/lib/checkout";
+} from "@/lib/checkout-constants";
 import { submitCheckout } from "@/app/checkout/actions";
 
-export function CheckoutForm({
-  variantId,
-  quantity,
-}: {
-  variantId: string;
-  quantity: number;
-}) {
+export function CheckoutForm() {
   const [state, formAction] = useActionState<CheckoutState, FormData>(
     submitCheckout,
     emptyCheckoutState,
@@ -38,14 +32,14 @@ export function CheckoutForm({
 
   return (
     <form action={formAction} className="mt-8 space-y-5" noValidate>
-      <input type="hidden" name="variantId" value={variantId} />
-      <input type="hidden" name="quantity" value={quantity} />
+      {/* No hidden variant or quantity: the lines come from the server-side
+          bag cookie, so the browser cannot name what it is buying. */}
 
       {state.formError ? (
         <p
           ref={errorBannerRef}
           role="alert"
-          className="rounded-xl border border-danger/40 bg-danger/10 px-4 py-3 text-sm text-danger"
+          className="rounded-[2px] border border-danger/40 bg-danger/10 px-4 py-3 text-sm text-danger"
         >
           {state.formError}
         </p>
@@ -124,7 +118,7 @@ function SubmitButton() {
     <button
       type="submit"
       disabled={pending}
-      className="flex h-14 w-full items-center justify-center rounded-full bg-accent px-6 text-sm font-semibold text-accent-foreground transition-opacity hover:opacity-90 active:opacity-80 disabled:opacity-60"
+      className="flex h-14 w-full items-center justify-center rounded-[2px] bg-accent px-6 text-sm font-semibold text-accent-foreground transition-opacity hover:opacity-90 active:opacity-80 disabled:opacity-60"
     >
       {pending ? "Working…" : "Continue to payment"}
     </button>
@@ -158,7 +152,7 @@ function Field({
 
   // 16px (text-base) on the control: anything smaller makes iOS Safari zoom
   // the viewport when the field receives focus.
-  const controlClass = `mt-2 w-full rounded-xl border bg-surface px-4 text-base transition-colors placeholder:text-subtle focus:border-foreground ${
+  const controlClass = `mt-2 w-full rounded-[2px] border bg-surface px-4 text-base transition-colors placeholder:text-subtle focus:border-foreground ${
     error ? "border-danger" : "border-border-strong"
   }`;
 

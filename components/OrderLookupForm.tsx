@@ -97,7 +97,7 @@ export function OrderLookupForm({
             placeholder="CH-000123"
             required
             maxLength={20}
-            className="mt-1 w-full rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+            className="mt-1 h-12 w-full rounded-[2px] border border-border-strong bg-surface px-3 text-base"
           />
         </div>
         <div>
@@ -110,35 +110,35 @@ export function OrderLookupForm({
             type="email"
             required
             maxLength={254}
-            className="mt-1 w-full rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+            className="mt-1 h-12 w-full rounded-[2px] border border-border-strong bg-surface px-3 text-base"
           />
         </div>
         <div ref={turnstileContainerRef} />
         <button
           type="submit"
           disabled={submitting || !turnstileToken}
-          className="w-full rounded bg-zinc-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
+          className="btn-primary w-full disabled:opacity-50"
         >
           {submitting ? "Looking up…" : "Find my order"}
         </button>
       </form>
 
       {result && !result.found ? (
-        <p className="mt-6 text-sm text-zinc-500">
+        <p className="mt-6 text-sm text-muted">
           No matching order found. Double-check the order number and the email you
           used at checkout.
         </p>
       ) : null}
 
       {result && result.found ? (
-        <div className="mt-6 space-y-4 border-t border-zinc-200 pt-6 text-sm dark:border-zinc-800">
+        <div className="mt-6 space-y-4 border-t border-border pt-6 text-sm">
           <div className="flex justify-between">
             <span className="font-medium">{result.orderNumber}</span>
             <span>{STATUS_LABELS[result.status] ?? result.status}</span>
           </div>
           <ul className="space-y-1">
             {result.items.map((item, i) => (
-              <li key={i} className="flex justify-between text-zinc-500">
+              <li key={i} className="flex justify-between text-muted">
                 <span>
                   {item.productName} ({item.size}) &times;{item.quantity}
                 </span>
@@ -150,7 +150,7 @@ export function OrderLookupForm({
             <span>Total</span>
             <span>{formatPrice(result.totalCents, result.currency)}</span>
           </div>
-          <div className="text-zinc-500">
+          <div className="text-muted">
             Shipping to {result.shipping.name}, {result.shipping.addressLine1}
             {result.shipping.addressLine2 ? `, ${result.shipping.addressLine2}` : ""},{" "}
             {result.shipping.city}, {result.shipping.country}

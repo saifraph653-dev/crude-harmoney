@@ -1,160 +1,247 @@
 @import "tailwindcss";
 
-/* ---------------------------------------------------------------------------
-   Crude Harmony — design tokens.
+/* ===========================================================================
+   Crude Harmony — design system.
 
-   The storefront is committed to a single dark treatment rather than
-   following the system light/dark preference: the product art is rendered
-   against its own fixed backdrops, and a light UI around dark garment
-   shots made the grid read as a spreadsheet. One deliberate look.
-   --------------------------------------------------------------------------- */
+   One dark treatment, committed to rather than following the system
+   preference: garment art sits on its own fixed backdrops, and a light UI
+   around dark shots made the grid read as a spreadsheet.
+
+   The palette is warm. Cold near-blacks (#0a0a0b and friends) are the
+   default of every dev-tool UI; the brand is "modern vintage", so the
+   neutrals carry a little warmth and the foreground is bone rather than
+   white. There is no gold, no second hue: the brightest things on screen
+   should be the garment and the type, nothing else.
+   =========================================================================== */
 :root {
-  --bg: #0a0a0b;
-  --bg-raised: #121215;
-  --bg-inset: #060607;
-  --border: #23232a;
-  --border-strong: #35353f;
-  --fg: #f5f5f6;
-  --fg-muted: #a3a3ad;
-  --fg-subtle: #6e6e79;
-  --accent: #c8a02b;
-  --accent-fg: #0a0a0b;
-  --danger: #f0736b;
-  --ok: #57c98a;
+  /* Surfaces — warm near-blacks. */
+  --ink: #0c0b0a;
+  --ink-raised: #151312;
+  --ink-inset: #070606;
+
+  /* Foreground — bone, not white. */
+  --bone: #ece7dd;
+  --bone-muted: #9a938a;
+  --bone-subtle: #6a645c;
+
+  /* Hairlines. The design leans on 1px rules instead of shadows. */
+  --line: #232120;
+  --line-strong: #38342f;
+
+  /* State. Desaturated so they never out-shout the product. */
+  --danger: #d9756c;
+  --ok: #7fae8b;
+
+  /* Type scale — one ratio, no ad-hoc sizes at call sites. */
+  --step--2: 0.6875rem;
+  --step--1: 0.8125rem;
+  --step-0: 0.9375rem;
+  --step-1: 1.125rem;
+  --step-2: 1.5rem;
+  --step-3: 2rem;
+  --step-4: 2.75rem;
+  --step-5: 4rem;
+
+  /* Spacing. */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-24: 6rem;
+
+  /* Radius. Near-square: rounded pills and 14px cards are the house style
+     of every SaaS template, and they soften a brand that should read sharp. */
+  --radius: 2px;
+
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 @theme inline {
-  --color-background: var(--bg);
-  --color-surface: var(--bg-raised);
-  --color-inset: var(--bg-inset);
-  --color-border: var(--border);
-  --color-border-strong: var(--border-strong);
-  --color-foreground: var(--fg);
-  --color-muted: var(--fg-muted);
-  --color-subtle: var(--fg-subtle);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-fg);
+  --color-background: var(--ink);
+  --color-surface: var(--ink-raised);
+  --color-inset: var(--ink-inset);
+  --color-border: var(--line);
+  --color-border-strong: var(--line-strong);
+  --color-foreground: var(--bone);
+  --color-muted: var(--bone-muted);
+  --color-subtle: var(--bone-subtle);
+  /* Kept so existing call sites resolve; the accent is bone, not a hue. */
+  --color-accent: var(--bone);
+  --color-accent-foreground: var(--ink);
   --color-danger: var(--danger);
   --color-ok: var(--ok);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-archivo);
+  --font-serif: var(--font-instrument);
+  --radius-sm: var(--radius);
+  --radius-md: var(--radius);
+  --radius-lg: var(--radius);
 }
 
 html {
-  background: var(--bg);
-  /* iOS: stop Safari auto-inflating text in landscape. */
-  -webkit-text-size-adjust: 100%;
+  background: var(--ink);
+  -webkit-text-size-adjust: 100%; /* iOS: no auto-inflation in landscape. */
 }
 
 body {
-  background: var(--bg);
-  color: var(--fg);
-  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  /* Respect the iPhone safe areas (notch / Dynamic Island / home bar). */
+  background: var(--ink);
+  color: var(--bone);
+  font-family: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  font-size: var(--step-0);
+  line-height: 1.55;
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
 }
 
+/* Editorial accent. One weight, one italic, used deliberately and rarely. */
+.serif {
+  font-family: var(--font-instrument), Georgia, serif;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
 /* ---------------------------------------------------------------------------
-   Texture. A single tiled SVG noise layer, kept very low contrast -- it is
-   what stops large flat dark areas looking like empty <div>s.
+   Texture: a single tiled SVG noise layer at very low contrast. It is what
+   stops large flat dark areas reading as empty <div>s.
    --------------------------------------------------------------------------- */
 .grain {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
-  opacity: 0.05;
+  opacity: 0.045;
   mix-blend-mode: overlay;
 }
 
 /* ---------------------------------------------------------------------------
-   Type + component primitives
+   Type primitives
    --------------------------------------------------------------------------- */
+
+/* Metadata: sizes, collection names, SKUs. Wide-tracked uppercase grotesque
+   is the workwear/label convention -- it replaces the mono that used to do
+   this job, and saves a whole font family. */
 .eyebrow {
-  font-size: 0.6875rem;
-  letter-spacing: 0.2em;
+  font-size: var(--step--2);
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--fg-subtle);
+  color: var(--bone-subtle);
+  font-weight: 500;
 }
 
-/* Centred label flanked by hairlines, e.g. the hero's "Doha, Qatar". */
 .rule-label {
   display: inline-flex;
   align-items: center;
   gap: 0.9rem;
-  font-size: 0.6875rem;
-  letter-spacing: 0.28em;
+  font-size: var(--step--2);
+  letter-spacing: 0.24em;
   text-transform: uppercase;
-  color: var(--fg-subtle);
+  color: var(--bone-subtle);
+  font-weight: 500;
 }
 .rule-label .rule {
   display: block;
-  width: 2.25rem;
+  width: 2rem;
   height: 1px;
-  background: linear-gradient(to right, transparent, var(--border-strong), transparent);
+  background: var(--line-strong);
+}
+
+/* Display headings. Tight tracking + tight leading is what separates
+   editorial setting from default UI setting. */
+.display {
+  font-size: var(--step-4);
+  line-height: 0.94;
+  letter-spacing: -0.035em;
+  font-weight: 600;
+  text-wrap: balance;
+}
+@media (min-width: 640px) {
+  .display { font-size: var(--step-5); }
+}
+
+.section-title {
+  font-size: var(--step-1);
+  letter-spacing: -0.015em;
+  font-weight: 600;
+}
+@media (min-width: 640px) {
+  .section-title { font-size: var(--step-2); }
+}
+
+/* ---------------------------------------------------------------------------
+   Controls
+   --------------------------------------------------------------------------- */
+.btn-primary,
+.btn-ghost {
+  display: inline-flex;
+  height: 3rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius);
+  padding-inline: var(--space-8);
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  /* Labels are short by design; wrapping one onto two lines breaks the
+     control's rhythm and was happening in the hero's narrow column. */
+  white-space: nowrap;
+  transition: background-color 0.2s var(--ease), color 0.2s var(--ease),
+    border-color 0.2s var(--ease);
 }
 
 .btn-primary {
-  display: inline-flex;
-  height: 3.25rem;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  padding-inline: 1.9rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  background: var(--fg);
-  color: var(--bg);
-  transition: transform 0.2s ease, opacity 0.2s ease;
+  background: var(--bone);
+  color: var(--ink);
+  border: 1px solid var(--bone);
 }
 .btn-primary:hover {
-  opacity: 0.9;
-}
-.btn-primary:active {
-  transform: scale(0.985);
+  background: transparent;
+  color: var(--bone);
 }
 
 .btn-ghost {
-  display: inline-flex;
-  height: 3.25rem;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  padding-inline: 1.9rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--fg-muted);
-  border: 1px solid var(--border-strong);
-  transition: border-color 0.2s ease, color 0.2s ease;
+  color: var(--bone-muted);
+  border: 1px solid var(--line-strong);
 }
 .btn-ghost:hover {
-  border-color: var(--fg);
-  color: var(--fg);
+  border-color: var(--bone);
+  color: var(--bone);
 }
 
 .link-quiet {
-  font-size: 0.875rem;
-  color: var(--fg-muted);
+  font-size: var(--step--1);
+  color: var(--bone-muted);
   text-underline-offset: 4px;
-  transition: color 0.2s ease;
+  transition: color 0.2s var(--ease);
 }
 .link-quiet:hover {
-  color: var(--fg);
+  color: var(--bone);
   text-decoration: underline;
 }
 
-/* Product image frame, shared by every grid card. */
+/* ---------------------------------------------------------------------------
+   Product frame.
+
+   4:5 portrait, not square. Portrait is the fashion-catalogue standard: it
+   gives a garment room to be a garment instead of a thumbnail, and it is
+   most of the difference between a grid that reads editorial and one that
+   reads like a database table.
+   --------------------------------------------------------------------------- */
 .card-frame {
   position: relative;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 4 / 5;
   overflow: hidden;
-  border-radius: 0.85rem;
-  border: 1px solid var(--border);
-  background: var(--bg-raised);
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--ink-raised);
 }
 
-/* Visible focus for keyboard users, since the design removes default
-   outlines on several dark controls. */
+/* ---------------------------------------------------------------------------
+   Focus. The design removes default outlines on several dark controls, so
+   this has to be unambiguous -- bone on near-black is ~13:1.
+   --------------------------------------------------------------------------- */
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--bone);
   outline-offset: 2px;
 }
 

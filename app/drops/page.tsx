@@ -38,10 +38,10 @@ export default async function DropsPage() {
         </p>
 
         {anyUpcoming ? (
-          <p className="mt-6 inline-flex items-center gap-2.5 rounded-full border border-border-strong bg-surface px-4 py-2.5 text-sm text-muted">
+          <p className="mt-6 inline-flex items-center gap-2.5 rounded-[2px] border border-border-strong bg-surface px-4 py-2.5 text-sm text-muted">
             <span
               aria-hidden
-              className="inline-block h-1.5 w-1.5 rounded-full bg-accent"
+              className="inline-block h-1.5 w-1.5 rounded-[2px] bg-accent"
             />
             Not released yet — nothing here can be bought today.
           </p>
@@ -55,7 +55,7 @@ export default async function DropsPage() {
           {limited.length > 0 ? (
             <section>
               <div className="flex items-baseline gap-3">
-                <h2 className="text-xl font-semibold tracking-tight sm:text-2xl">
+                <h2 className="section-title">
                   Limited Edition
                 </h2>
                 <span className="eyebrow">{limited.length} pieces</span>
@@ -70,7 +70,7 @@ export default async function DropsPage() {
           {classic.length > 0 ? (
             <section>
               <div className="flex items-baseline gap-3">
-                <h2 className="text-xl font-semibold tracking-tight sm:text-2xl">
+                <h2 className="section-title">
                   Classic Collection
                 </h2>
                 <span className="eyebrow">{classic.length} pieces</span>
