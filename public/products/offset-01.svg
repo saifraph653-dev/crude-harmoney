@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1250" width="1000" height="1250" role="img" aria-label="offset-01">
+  <defs>
+    <linearGradient id="g-offset-01" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1c1b1a"/>
+      <stop offset="100%" stop-color="#0b0a09"/>
+    </linearGradient>
+    <linearGradient id="f-offset-01" x1="0.16" y1="0" x2="0.86" y2="1">
+      <stop offset="0%" stop-color="#2a2a2a"/>
+      <stop offset="54%" stop-color="#191919"/>
+      <stop offset="100%" stop-color="#050505"/>
+    </linearGradient>
+
+    <filter id="grain-offset-01" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="7"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.05"/></feComponentTransfer>
+      <feComposite operator="in" in2="SourceGraphic"/>
+    </filter>
+    <filter id="weave-offset-01" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="1.5" numOctaves="2" seed="3"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.08"/></feComponentTransfer>
+      <feComposite operator="in" in2="SourceGraphic"/>
+    </filter>
+    <filter id="soft-offset-01" x="-25%" y="-25%" width="150%" height="150%">
+      <feGaussianBlur stdDeviation="17"/>
+    </filter>
+
+    <clipPath id="cloth-offset-01"><g transform="translate(0 150)"><path d="M338 196 C296 205 254 223 226 245 C202 291 184 348 175 394 C201 414 234 427 265 431 C276 405 287 379 296 357 C292 494 292 686 296 846 C370 857 630 857 704 846 C708 686 708 494 704 357 C713 379 724 405 735 431 C766 427 799 414 825 394 C816 348 798 291 774 245 C746 223 704 205 662 196 C649 254 587 286 500 286 C413 286 351 254 338 196 Z"/></g></clipPath>
+  </defs>
+
+  <rect width="1000" height="1250" fill="url(#g-offset-01)"/>
+  <rect width="1000" height="1250" filter="url(#grain-offset-01)" fill="#ffffff"/>
+
+  <ellipse cx="500" cy="1012" rx="248" ry="24" fill="#000" opacity="0.32" filter="url(#soft-offset-01)"/>
+
+  <g transform="translate(0 150)">
+    
+
+    <path d="M338 196 C296 205 254 223 226 245 C202 291 184 348 175 394 C201 414 234 427 265 431 C276 405 287 379 296 357 C292 494 292 686 296 846 C370 857 630 857 704 846 C708 686 708 494 704 357 C713 379 724 405 735 431 C766 427 799 414 825 394 C816 348 798 291 774 245 C746 223 704 205 662 196 C649 254 587 286 500 286 C413 286 351 254 338 196 Z" fill="url(#f-offset-01)"/>
+
+    <g clip-path="url(#cloth-offset-01)">
+      <rect width="1000" height="1250" filter="url(#weave-offset-01)" fill="#ffffff"/>
+      <g filter="url(#soft-offset-01)">
+        <path d="M356 590 C372 672 366 756 350 848" stroke="#050505" stroke-opacity="0.18" stroke-width="34" fill="none" stroke-linecap="round"/>
+        <path d="M644 590 C628 672 634 756 650 848" stroke="#050505" stroke-opacity="0.18" stroke-width="34" fill="none" stroke-linecap="round"/>
+      </g>
+      <path d="M296 832 C400 843 600 843 704 832" stroke="#050505" stroke-opacity="0.26" stroke-width="6" fill="none"/>
+    </g>
+
+    <path d="M338 196 L662 196 C649 254 587 286 500 286 C413 286 351 254 338 196 Z" fill="#050505" opacity="0.6"/>
+    <path d="M338 196 C351 254 413 286 500 286 C587 286 649 254 662 196 L648 196 C636 244 580 272 500 272 C420 272 364 244 352 196 Z" fill="#2a2a2a" opacity="0.5"/>
+
+    <g transform="translate(500 540)" fill="#ece7dd">
+    <g transform="scale(0.42)">
+      
+    <path fill-rule="evenodd" d="M-140 -140 L20 -140 L20 20 L-140 20 Z
+                                 M-20 -20 L140 -20 L140 140 L-20 140 Z"/>
+    </g>
+    <text x="0" y="132" text-anchor="middle" font-family="Helvetica,Arial,sans-serif" font-size="15" font-weight="700" letter-spacing="6.3">CRUDE HARMONY</text></g>
+  </g>
+</svg>

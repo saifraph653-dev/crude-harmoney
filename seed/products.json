@@ -1,39 +1,39 @@
 [
   {
-    "slug": "atlas-tee",
-    "name": "Atlas Tee",
+    "slug": "offset-01",
+    "name": "Offset 01",
     "collection": "classic",
     "displayOrder": 1,
-    "description": "The house cross, pressed large across the chest in soft white vinyl. 240gsm combed cotton, boxy cut, ribbed collar that holds its shape after the wash. The piece everything else is built around.",
+    "description": "Two squares, one pushed off the other, the overlap cut away. Small on the chest in cream vinyl. 240gsm combed cotton, boxy cut, ribbed collar that holds its shape after the wash.",
     "status": "coming_soon",
-    "imagePath": "/products/atlas-tee.svg",
+    "imagePath": "/products/offset-01.svg",
     "imageWidth": 1000,
-    "imageHeight": 1000,
+    "imageHeight": 1250,
     "variants": [
       {
         "size": "S",
-        "sku": "CH-ATL-S",
+        "sku": "CH-OFF-S",
         "priceCents": 18000,
-        "stockCount": 12,
+        "stockCount": 10,
         "sortOrder": 1
       },
       {
         "size": "M",
-        "sku": "CH-ATL-M",
+        "sku": "CH-OFF-M",
         "priceCents": 18000,
-        "stockCount": 18,
+        "stockCount": 16,
         "sortOrder": 2
       },
       {
         "size": "L",
-        "sku": "CH-ATL-L",
+        "sku": "CH-OFF-L",
         "priceCents": 18000,
-        "stockCount": 18,
+        "stockCount": 16,
         "sortOrder": 3
       },
       {
         "size": "XL",
-        "sku": "CH-ATL-XL",
+        "sku": "CH-OFF-XL",
         "priceCents": 18000,
         "stockCount": 10,
         "sortOrder": 4
@@ -41,206 +41,206 @@
     ]
   },
   {
-    "slug": "meridian-tee",
-    "name": "Meridian Tee",
+    "slug": "ridge-02",
+    "name": "Ridge 02",
     "collection": "classic",
     "displayOrder": 2,
-    "description": "Off-white heavyweight carrying the dagger mark in black. Garment-dyed so the colour settles rather than fades, with a slightly longer body than the Atlas. Reads clean from across a room.",
+    "description": "Four bands, each shifted off the one above. Pressed in black on an off-white body, with VOL. 01 set underneath.",
     "status": "coming_soon",
-    "imagePath": "/products/meridian-tee.svg",
+    "imagePath": "/products/ridge-02.svg",
     "imageWidth": 1000,
-    "imageHeight": 1000,
+    "imageHeight": 1250,
     "variants": [
       {
         "size": "S",
-        "sku": "CH-MER-S",
+        "sku": "CH-RDG-S",
         "priceCents": 18000,
         "stockCount": 10,
         "sortOrder": 1
       },
       {
         "size": "M",
-        "sku": "CH-MER-M",
+        "sku": "CH-RDG-M",
         "priceCents": 18000,
         "stockCount": 16,
         "sortOrder": 2
       },
       {
         "size": "L",
-        "sku": "CH-MER-L",
+        "sku": "CH-RDG-L",
         "priceCents": 18000,
         "stockCount": 16,
         "sortOrder": 3
       },
       {
         "size": "XL",
-        "sku": "CH-MER-XL",
+        "sku": "CH-RDG-XL",
         "priceCents": 18000,
-        "stockCount": 8,
+        "stockCount": 10,
         "sortOrder": 4
       }
     ]
   },
   {
-    "slug": "dune-tee",
-    "name": "Dune Tee",
+    "slug": "margin-03",
+    "name": "Margin 03",
     "collection": "classic",
     "displayOrder": 3,
-    "description": "Sand-toned cotton with the eight-point star pressed in near-black. Built for the months when black is not an option. Pre-shrunk and washed once before it ships, so what you get is what it stays.",
+    "description": "A block and its rule, set out of line. Black on heather grey, held left of centre so it sits off the middle of the chest.",
     "status": "coming_soon",
-    "imagePath": "/products/dune-tee.svg",
+    "imagePath": "/products/margin-03.svg",
     "imageWidth": 1000,
-    "imageHeight": 1000,
+    "imageHeight": 1250,
     "variants": [
       {
         "size": "S",
-        "sku": "CH-DUN-S",
-        "priceCents": 19000,
-        "stockCount": 8,
+        "sku": "CH-MRG-S",
+        "priceCents": 18000,
+        "stockCount": 10,
         "sortOrder": 1
       },
       {
         "size": "M",
-        "sku": "CH-DUN-M",
-        "priceCents": 19000,
-        "stockCount": 14,
+        "sku": "CH-MRG-M",
+        "priceCents": 18000,
+        "stockCount": 16,
         "sortOrder": 2
       },
       {
         "size": "L",
-        "sku": "CH-DUN-L",
-        "priceCents": 19000,
-        "stockCount": 14,
+        "sku": "CH-MRG-L",
+        "priceCents": 18000,
+        "stockCount": 16,
         "sortOrder": 3
       },
       {
         "size": "XL",
-        "sku": "CH-DUN-XL",
-        "priceCents": 19000,
-        "stockCount": 6,
+        "sku": "CH-MRG-XL",
+        "priceCents": 18000,
+        "stockCount": 10,
         "sortOrder": 4
       }
     ]
   },
   {
-    "slug": "vale-tee",
-    "name": "Vale Tee",
+    "slug": "seam-04",
+    "name": "Seam 04",
     "collection": "classic",
     "displayOrder": 4,
-    "description": "Charcoal grey mid-weight carrying the open-hand mark in lavender-white. The quietest thing we make, cut a touch closer through the body than the rest of the Classic range.",
+    "description": "Two runs that should meet level and do not. Pressed full length down the front in cream. Heavyweight hood, kangaroo pocket, ribbed cuffs and hem.",
     "status": "coming_soon",
-    "imagePath": "/products/vale-tee.svg",
+    "imagePath": "/products/seam-04.svg",
     "imageWidth": 1000,
-    "imageHeight": 1000,
+    "imageHeight": 1250,
     "variants": [
       {
         "size": "S",
-        "sku": "CH-VAL-S",
-        "priceCents": 18000,
+        "sku": "CH-SEA-S",
+        "priceCents": 32000,
         "stockCount": 10,
         "sortOrder": 1
       },
       {
         "size": "M",
-        "sku": "CH-VAL-M",
-        "priceCents": 18000,
-        "stockCount": 15,
+        "sku": "CH-SEA-M",
+        "priceCents": 32000,
+        "stockCount": 16,
         "sortOrder": 2
       },
       {
         "size": "L",
-        "sku": "CH-VAL-L",
-        "priceCents": 18000,
-        "stockCount": 15,
+        "sku": "CH-SEA-L",
+        "priceCents": 32000,
+        "stockCount": 16,
         "sortOrder": 3
       },
       {
         "size": "XL",
-        "sku": "CH-VAL-XL",
-        "priceCents": 18000,
-        "stockCount": 8,
+        "sku": "CH-SEA-XL",
+        "priceCents": 32000,
+        "stockCount": 10,
         "sortOrder": 4
       }
     ]
   },
   {
-    "slug": "ember-01",
-    "name": "Ember 01",
-    "collection": "limited",
+    "slug": "field-05",
+    "name": "Field 05",
+    "collection": "classic",
     "displayOrder": 5,
-    "description": "First limited release. Deep oxide red, 260gsm, with the winged mark pressed in cream and a numbered tag stitched inside the hem. Thirty pieces across all sizes. No restock, no second run.",
+    "description": "A grid with one row walked out of step, DOHA set small beneath it. Cream on charcoal.",
     "status": "coming_soon",
-    "imagePath": "/products/ember-tee.svg",
+    "imagePath": "/products/field-05.svg",
     "imageWidth": 1000,
-    "imageHeight": 1000,
+    "imageHeight": 1250,
     "variants": [
       {
         "size": "S",
-        "sku": "CH-EMB-S",
-        "priceCents": 28000,
-        "stockCount": 5,
+        "sku": "CH-FLD-S",
+        "priceCents": 32000,
+        "stockCount": 10,
         "sortOrder": 1
       },
       {
         "size": "M",
-        "sku": "CH-EMB-M",
-        "priceCents": 28000,
-        "stockCount": 10,
+        "sku": "CH-FLD-M",
+        "priceCents": 32000,
+        "stockCount": 16,
         "sortOrder": 2
       },
       {
         "size": "L",
-        "sku": "CH-EMB-L",
-        "priceCents": 28000,
-        "stockCount": 10,
+        "sku": "CH-FLD-L",
+        "priceCents": 32000,
+        "stockCount": 16,
         "sortOrder": 3
       },
       {
         "size": "XL",
-        "sku": "CH-EMB-XL",
-        "priceCents": 28000,
-        "stockCount": 5,
+        "sku": "CH-FLD-XL",
+        "priceCents": 32000,
+        "stockCount": 10,
         "sortOrder": 4
       }
     ]
   },
   {
-    "slug": "obsidian-02",
-    "name": "Obsidian 02",
-    "collection": "limited",
+    "slug": "bias-06",
+    "name": "Bias 06",
+    "collection": "classic",
     "displayOrder": 6,
-    "description": "Second limited release. Black on black cotton with the crown pulled in antique gold \u2014 pressed by hand, so no two sit exactly alike. Twenty-four pieces, numbered and boxed.",
+    "description": "A square split on the diagonal and drawn apart. Black on heather grey.",
     "status": "coming_soon",
-    "imagePath": "/products/obsidian-tee.svg",
+    "imagePath": "/products/bias-06.svg",
     "imageWidth": 1000,
-    "imageHeight": 1000,
+    "imageHeight": 1250,
     "variants": [
       {
         "size": "S",
-        "sku": "CH-OBS-S",
+        "sku": "CH-BIA-S",
         "priceCents": 32000,
-        "stockCount": 4,
+        "stockCount": 10,
         "sortOrder": 1
       },
       {
         "size": "M",
-        "sku": "CH-OBS-M",
+        "sku": "CH-BIA-M",
         "priceCents": 32000,
-        "stockCount": 8,
+        "stockCount": 16,
         "sortOrder": 2
       },
       {
         "size": "L",
-        "sku": "CH-OBS-L",
+        "sku": "CH-BIA-L",
         "priceCents": 32000,
-        "stockCount": 8,
+        "stockCount": 16,
         "sortOrder": 3
       },
       {
         "size": "XL",
-        "sku": "CH-OBS-XL",
+        "sku": "CH-BIA-XL",
         "priceCents": 32000,
-        "stockCount": 4,
+        "stockCount": 10,
         "sortOrder": 4
       }
     ]

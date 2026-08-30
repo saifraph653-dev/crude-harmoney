@@ -12,82 +12,89 @@
 // never in the artwork itself, which is why the two are emitted
 // separately rather than cropped out of one file later.
 //
+// DESIGN LANGUAGE:
+// The marks all come from one idea, taken from the brand's own name and
+// its actual production method: things that are meant to line up, not
+// quite lining up. Hand-pressing vinyl one garment at a time is a process
+// with slip in it, and the storefront already says the small variations
+// are the point. So every mark here is a solid geometric form that has
+// been displaced, stepped or knocked out of register.
+//
+// This deliberately replaces the previous library (cross, dagger, crown,
+// wings, crest, star). Those are the default vocabulary of every generic
+// streetwear graphic, they carry religious and heraldic readings the
+// brand has no claim to, and six pieces drawn from them look like a
+// costume rather than a collection.
+//
 // Usage: node scripts/generate-product-art.mjs
 
 import { mkdir, writeFile } from "node:fs/promises";
 
-const SIZE = 1000;
+const W = 1000;
+const H = 1250; // 4:5 portrait, matching .card-frame in app/globals.css.
 
 // ---------------------------------------------------------------------------
 // Marks. Each is drawn centred on (0,0) inside roughly a 300x300 box, as
-// solid fills only. `fill="currentColor"` lets the same path serve the
-// product shot and the single-colour cutting file.
+// solid fills only. Corners are square and interior angles are generous:
+// a blade cannot follow a tight concave notch, and fine points lift off
+// the garment in the wash.
 // ---------------------------------------------------------------------------
 const MARKS = {
-  // Ornate flared cross -- the gothic end of the range.
-  cross: `
-    <path d="M-26 -150 L26 -150 L26 -58 L118 -58 L118 -6 L26 -6 L26 150 L-26 150 L-26 -6 L-118 -6 L-118 -58 L-26 -58 Z"/>
-    <path d="M0 -178 L22 -150 L-22 -150 Z"/>
-    <path d="M0 178 L22 150 L-22 150 Z"/>
-    <path d="M-146 -32 L-118 -58 L-118 -6 Z"/>
-    <path d="M146 -32 L118 -58 L118 -6 Z"/>
-    <path d="M0 -46 L36 -10 L0 26 L-36 -10 Z"/>`,
+  // OFFSET -- two equal squares pushed apart on the diagonal, the overlap
+  // knocked out with evenodd. The whole idea of the collection in its
+  // simplest possible statement, and the easiest thing here to cut.
+  offset: `
+    <path fill-rule="evenodd" d="M-140 -140 L20 -140 L20 20 L-140 20 Z
+                                 M-20 -20 L140 -20 L140 140 L-20 140 Z"/>`,
 
-  // Dagger. Long blade, heavy crossguard, faceted pommel.
-  dagger: `
-    <path d="M0 -186 L20 -104 L20 40 L0 74 L-20 40 L-20 -104 Z"/>
-    <path d="M-124 -104 L124 -104 L124 -74 L34 -74 L34 -56 L-34 -56 L-34 -74 L-124 -74 Z"/>
-    <path d="M-124 -104 L-152 -89 L-124 -74 Z"/>
-    <path d="M124 -104 L152 -89 L124 -74 Z"/>
-    <path d="M0 84 L26 112 L0 174 L-26 112 Z"/>
-    <circle cx="0" cy="-30" r="13"/>`,
+  // RIDGE -- horizontal strata, each band shifted off the one above, like
+  // rock layers that have slipped along a fault. An earlier version used
+  // stepped vertical bars and read as a bar chart.
+  ridge: `
+    <rect x="-150" y="-142" width="300" height="54"/>
+    <rect x="-96"  y="-66"  width="300" height="54"/>
+    <rect x="-150" y="10"   width="252" height="54"/>
+    <rect x="-88"  y="86"   width="238" height="54"/>`,
 
-  // Eight-point star with a punched centre. Two subpaths + evenodd is what
-  // actually cuts the hole; a second solid path would just overlay it.
-  star: `
-    <path fill-rule="evenodd" d="M0 -170 L34 -60 L146 -96 L74 -8 L170 60 L52 58 L36 172 L0 68 L-36 172 L-52 58 L-170 60 L-74 -8 L-146 -96 L-34 -60 Z
-                                 M0 -46 A46 46 0 1 0 0 46 A46 46 0 1 0 0 -46 Z"/>`,
+  // MARGIN -- a solid block with its rule set beside it, dropped out of
+  // alignment. Reads as a page with the margin slipped.
+  margin: `
+    <path d="M-34 -140 L140 -140 L140 140 L-34 140 Z"/>
+    <path d="M-140 -96 L-92 -96 L-92 184 L-140 184 Z"/>`,
 
-  // Heavy shield crest. Monogram sits inside via a text node.
-  crest: `
-    <path d="M-118 -140 L118 -140 L118 26 C118 104 60 148 0 176 C-60 148 -118 104 -118 26 Z"/>`,
+  // SEAM -- two parallel runs that should meet level and do not. The
+  // first attempt jogged a single bar sideways and read, unmistakably, as
+  // a crucifix; there is deliberately no horizontal element here now.
+  seam: `
+    <rect x="-104" y="-200" width="80" height="330"/>
+    <rect x="24"   y="-124" width="80" height="330"/>`,
 
-  // Paired wings around a central bar. Heavier than a literal feather
-  // drawing so it holds up once it is cut and pressed.
-  wings: `
-    <path d="M-20 -76 L20 -76 L20 104 L0 138 L-20 104 Z"/>
-    <path d="M-34 -60 C-104 -54 -160 -26 -196 16 C-146 6 -112 12 -84 30 C-112 46 -128 68 -136 96 C-96 62 -62 48 -34 48 Z"/>
-    <path d="M34 -60 C104 -54 160 -26 196 16 C146 6 112 12 84 30 C112 46 128 68 136 96 C96 62 62 48 34 48 Z"/>
-    <path d="M0 -116 L24 -80 L-24 -80 Z"/>`,
+  // FIELD -- a regular grid of dots with one row walked out of step. Round
+  // shapes at this size are the most forgiving thing a cutter handles.
+  field: `
+    <g>
+      <circle cx="-105" cy="-105" r="22"/><circle cx="-35" cy="-105" r="22"/>
+      <circle cx="35"   cy="-105" r="22"/><circle cx="105" cy="-105" r="22"/>
+      <circle cx="-105" cy="-35"  r="22"/><circle cx="-35" cy="-35"  r="22"/>
+      <circle cx="35"   cy="-35"  r="22"/><circle cx="105" cy="-35"  r="22"/>
+      <circle cx="-70"  cy="35"   r="22"/><circle cx="0"   cy="35"   r="22"/>
+      <circle cx="70"   cy="35"   r="22"/><circle cx="140" cy="35"   r="22"/>
+      <circle cx="-105" cy="105"  r="22"/><circle cx="-35" cy="105"  r="22"/>
+      <circle cx="35"   cy="105"  r="22"/><circle cx="105" cy="105"  r="22"/>
+    </g>`,
 
-
-  // Open hand. Fingers kept as separate rounded slabs with wide gaps --
-  // a literal hand outline has concave notches too tight for a blade.
-  hand: `
-    <path d="M-96 6 C-96 -26 -74 -46 -46 -46 L46 -46 C74 -46 96 -26 96 6 L96 76 C96 130 56 172 0 172 C-56 172 -96 130 -96 76 Z"/>
-    <rect x="-86" y="-152" width="40" height="118" rx="20"/>
-    <rect x="-30" y="-186" width="40" height="152" rx="20"/>
-    <rect x="26" y="-172" width="40" height="138" rx="20"/>
-    <rect x="80" y="-120" width="38" height="90" rx="19" transform="rotate(14 99 -75)"/>
-    <rect x="-150" y="-70" width="38" height="86" rx="19" transform="rotate(-22 -131 -27)"/>`,
-
-  // Crown. Solid, symmetrical, generous interior angles -- the cleanest
-  // of the set to cut, and it carries the "modern vintage" read without
-  // needing fine detail.
-  crown: `
-    <path d="M-170 -34 L-104 46 L-58 -86 L0 26 L58 -86 L104 46 L170 -34 L140 130 L-140 130 Z"/>
-    <rect x="-150" y="150" width="300" height="46" rx="8"/>
-    <circle cx="-170" cy="-58" r="24"/>
-    <circle cx="170" cy="-58" r="24"/>
-    <circle cx="0" cy="-108" r="26"/>`,
+  // BIAS -- a square split on the diagonal, the halves drawn apart. The
+  // gap is the mark; the two solids are just what makes it visible.
+  bias: `
+    <path d="M-150 -150 L130 -150 L-150 130 Z"/>
+    <path d="M150 -110 L150 170 L-130 170 Z"/>`,
 };
 
 // A mark plus optional wordmark underneath, as one <g>.
-function markGroup({ mark, word, wordSize = 22, wordY = 232, scale = 1, inside }) {
+function markGroup({ mark, word, wordSize = 22, wordY = 232, scale = 1 }) {
   return `
     <g transform="scale(${scale})">
       ${MARKS[mark]}
-      ${inside ?? ""}
     </g>
     ${
       word
@@ -97,10 +104,9 @@ function markGroup({ mark, word, wordSize = 22, wordY = 232, scale = 1, inside }
 }
 
 // ---------------------------------------------------------------------------
-// Garment shot. A tee silhouette rather than a folded flat lay: folded
-// cloth rendered as vector reads as an envelope at thumbnail size, and the
-// grid has to say "shirt" instantly. One geometry across the range so the
-// six read as a single shoot.
+// Garment silhouettes. One geometry per garment type across the range, so
+// the six read as a single shoot rather than six separate renders. Drawn
+// in a 1000x1000 space and lifted into the 4:5 frame by `lift`.
 // ---------------------------------------------------------------------------
 const TEE =
   "M338 196 C296 205 254 223 226 245 C202 291 184 348 175 394 C201 414 234 427 265 431 " +
@@ -109,24 +115,66 @@ const TEE =
   "C816 348 798 291 774 245 C746 223 704 205 662 196 " +
   "C649 254 587 286 500 286 C413 286 351 254 338 196 Z";
 
-// The neck opening exactly as the TEE path leaves it: straight across the
-// shoulders, then down the neckline curve. Drawing an ellipse here instead
-// bulges above the shoulder seam and reads as a hole punched in the render.
-const NECK_OPENING =
+const TEE_NECK =
   "M338 196 L662 196 C649 254 587 286 500 286 C413 286 351 254 338 196 Z";
 
-// Rib band hugging the inside of that neckline.
-const COLLAR_RIB =
+const TEE_COLLAR =
   "M338 196 C351 254 413 286 500 286 C587 286 649 254 662 196 " +
   "L648 196 C636 244 580 272 500 272 C420 272 364 244 352 196 Z";
 
-function productShot({ id, base, highlight, shadow, ink, ground, art }) {
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${SIZE} ${SIZE}" width="${SIZE}" height="${SIZE}" role="img" aria-label="${id}">
+// Hoodie: torso, sleeves and hood as separate paths. Drawing it as one
+// outline (as the tee is) forces the sleeve and body curves to meet in a
+// single continuous edge, which is what collapsed the first attempt into a
+// tee silhouette with a handle over it.
+const HOODIE_TORSO =
+  "M300 358 C342 344 420 336 500 336 C580 336 658 344 700 358 " +
+  "C710 520 710 790 700 952 C608 966 392 966 300 952 " +
+  "C290 790 290 520 300 358 Z";
+
+const HOODIE_SLEEVE_L =
+  "M304 348 C262 360 232 384 216 414 C200 476 190 556 186 638 " +
+  "C184 692 186 726 191 750 C221 760 257 760 288 750 " +
+  "C293 716 296 656 300 598 Z";
+
+const HOODIE_SLEEVE_R =
+  "M696 348 C738 360 768 384 784 414 C800 476 810 556 814 638 " +
+  "C816 692 814 726 809 750 C779 760 743 760 712 750 " +
+  "C707 716 704 656 700 598 Z";
+
+// Sits behind the torso as one solid volume, so only its crown shows above
+// the shoulders. Drawn in the garment fabric, not in shadow: an outlined
+// ring here read as a handle rather than a hood.
+const HOODIE_HOOD =
+  "M318 392 C300 258 368 158 500 158 C632 158 700 258 682 392 Z";
+
+// The opening, cut into the front of the torso below the hood.
+const HOODIE_NECK =
+  "M398 344 C398 402 442 442 500 442 C558 442 602 402 602 344 Z";
+
+const HOODIE_COLLAR =
+  "M398 344 C398 402 442 442 500 442 C558 442 602 402 602 344 " +
+  "L586 344 C586 394 548 428 500 428 C452 428 414 394 414 344 Z";
+
+const HOODIE_POCKET = "M348 734 L652 734 L668 882 L332 882 Z";
+const HOODIE_HEM = "M300 906 L700 906 L700 954 L300 954 Z";
+
+function garmentPaths(kind) {
+  return kind === "hoodie"
+    ? { parts: [HOODIE_TORSO, HOODIE_SLEEVE_L, HOODIE_SLEEVE_R], lift: 80 }
+    : { parts: [TEE], lift: 150 };
+}
+
+function productShot({ id, kind, base, highlight, shadow, ink, ground, art }) {
+  const { parts, lift } = garmentPaths(kind);
+  const hoodie = kind === "hoodie";
+  const cloth = parts.map((d) => `<path d="${d}"/>`).join("");
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="${id}">
   <defs>
-    <radialGradient id="g-${id}" cx="0.5" cy="0.34" r="0.82">
+    <linearGradient id="g-${id}" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="${ground[0]}"/>
       <stop offset="100%" stop-color="${ground[1]}"/>
-    </radialGradient>
+    </linearGradient>
     <linearGradient id="f-${id}" x1="0.16" y1="0" x2="0.86" y2="1">
       <stop offset="0%" stop-color="${highlight}"/>
       <stop offset="54%" stop-color="${base}"/>
@@ -149,32 +197,51 @@ function productShot({ id, base, highlight, shadow, ink, ground, art }) {
       <feGaussianBlur stdDeviation="17"/>
     </filter>
 
-    <clipPath id="cloth-${id}"><path d="${TEE}"/></clipPath>
+    <clipPath id="cloth-${id}"><g transform="translate(0 ${lift})">${cloth}</g></clipPath>
   </defs>
 
-  <rect width="${SIZE}" height="${SIZE}" fill="url(#g-${id})"/>
-  <rect width="${SIZE}" height="${SIZE}" filter="url(#grain-${id})" fill="#ffffff"/>
+  <rect width="${W}" height="${H}" fill="url(#g-${id})"/>
+  <rect width="${W}" height="${H}" filter="url(#grain-${id})" fill="#ffffff"/>
 
-  <ellipse cx="500" cy="862" rx="256" ry="26" fill="#000" opacity="0.34" filter="url(#soft-${id})"/>
+  <ellipse cx="500" cy="${lift + (hoodie ? 968 : 862)}" rx="248" ry="24" fill="#000" opacity="0.32" filter="url(#soft-${id})"/>
 
-  <g>
-    <path d="${TEE}" fill="url(#f-${id})"/>
+  <g transform="translate(0 ${lift})">
+    ${
+      hoodie
+        ? `<path d="${HOODIE_HOOD}" fill="url(#f-${id})"/>
+    <path d="${HOODIE_HOOD}" fill="${shadow}" opacity="0.28"/>`
+        : ""
+    }
+
+    ${parts.map((d) => `<path d="${d}" fill="url(#f-${id})"/>`).join("\n    ")}
 
     <g clip-path="url(#cloth-${id})">
-      <rect width="${SIZE}" height="${SIZE}" filter="url(#weave-${id})" fill="#ffffff"/>
+      <rect width="${W}" height="${H}" filter="url(#weave-${id})" fill="#ffffff"/>
       <g filter="url(#soft-${id})">
-        <path d="M356 590 C372 672 366 756 350 848" stroke="${shadow}" stroke-opacity="0.20" stroke-width="34" fill="none" stroke-linecap="round"/>
-        <path d="M644 590 C628 672 634 756 650 848" stroke="${shadow}" stroke-opacity="0.20" stroke-width="34" fill="none" stroke-linecap="round"/>
+        <path d="M356 ${hoodie ? 640 : 590} C372 ${hoodie ? 722 : 672} 366 ${hoodie ? 830 : 756} 350 ${hoodie ? 930 : 848}" stroke="${shadow}" stroke-opacity="0.18" stroke-width="34" fill="none" stroke-linecap="round"/>
+        <path d="M644 ${hoodie ? 640 : 590} C628 ${hoodie ? 722 : 672} 634 ${hoodie ? 830 : 756} 650 ${hoodie ? 930 : 848}" stroke="${shadow}" stroke-opacity="0.18" stroke-width="34" fill="none" stroke-linecap="round"/>
       </g>
-      <path d="M265 431 C282 410 291 383 296 357" stroke="${shadow}" stroke-opacity="0.24" stroke-width="6" fill="none" stroke-linecap="round"/>
-      <path d="M735 431 C718 410 709 383 704 357" stroke="${shadow}" stroke-opacity="0.24" stroke-width="6" fill="none" stroke-linecap="round"/>
-      <path d="M296 832 C400 843 600 843 704 832" stroke="${shadow}" stroke-opacity="0.26" stroke-width="6" fill="none"/>
+      ${
+        hoodie
+          ? `<path d="${HOODIE_POCKET}" fill="none" stroke="${shadow}" stroke-opacity="0.30" stroke-width="6"/>
+      <path d="${HOODIE_HEM}" fill="${shadow}" opacity="0.18"/>
+      <path d="M188 722 C220 732 256 732 289 722 L291 752 C257 762 220 762 189 752 Z" fill="${shadow}" opacity="0.24"/>
+      <path d="M812 722 C780 732 744 732 711 722 L709 752 C743 762 780 762 811 752 Z" fill="${shadow}" opacity="0.24"/>`
+          : `<path d="M296 832 C400 843 600 843 704 832" stroke="${shadow}" stroke-opacity="0.26" stroke-width="6" fill="none"/>`
+      }
     </g>
 
-    <path d="${NECK_OPENING}" fill="${shadow}" opacity="0.6"/>
-    <path d="${COLLAR_RIB}" fill="${highlight}" opacity="0.5"/>
+    ${
+      hoodie
+        ? `<path d="${HOODIE_NECK}" fill="${shadow}" opacity="0.82"/>
+    <path d="${HOODIE_COLLAR}" fill="${highlight}" opacity="0.35"/>
+    <path d="M452 430 L468 428 L462 548 L448 548 Z" fill="${highlight}" opacity="0.75"/>
+    <path d="M532 428 L548 430 L552 548 L538 548 Z" fill="${highlight}" opacity="0.75"/>`
+        : `<path d="${TEE_NECK}" fill="${shadow}" opacity="0.6"/>
+    <path d="${TEE_COLLAR}" fill="${highlight}" opacity="0.5"/>`
+    }
 
-    <g transform="translate(500 500)" fill="${ink}">${art}</g>
+    <g transform="translate(500 ${hoodie ? 640 : 540})" fill="${ink}">${art}</g>
   </g>
 </svg>
 `;
@@ -183,7 +250,7 @@ function productShot({ id, base, highlight, shadow, ink, ground, art }) {
 // The bare mark on transparent ground, one flat colour: what actually
 // goes to the cutter.
 function artworkFile({ id, art }) {
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-260 -260 520 520" width="520" height="520" role="img" aria-label="${id} artwork">
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-280 -280 560 560" width="560" height="560" role="img" aria-label="${id} artwork">
   <!-- Single flat colour, solid shapes only: cut-ready. Recolour by
        changing this one fill. -->
   <g fill="#000000">${art}</g>
@@ -192,42 +259,47 @@ function artworkFile({ id, art }) {
 }
 
 // ---------------------------------------------------------------------------
+// The range. Three tees, three hoodies; the hoodies sit in black, charcoal
+// and heather grey. Marks are scaled down on the tees (chest mark) and up
+// on the hoodies, which is the difference between a piece you wear under
+// something and a piece that is the outfit.
+// ---------------------------------------------------------------------------
 const PIECES = [
   {
-    file: "atlas-tee",
-    base: "#232327", highlight: "#33333a", shadow: "#0c0c0e",
-    ground: ["#1a1a1d", "#0a0a0b"], ink: "#f2f2f3",
-    art: markGroup({ mark: "cross", word: "CRUDE HARMONY", scale: 0.5, wordY: 168, wordSize: 17 }),
+    file: "offset-01", kind: "tee",
+    base: "#191919", highlight: "#2a2a2a", shadow: "#050505",
+    ground: ["#1c1b1a", "#0b0a09"], ink: "#ece7dd",
+    art: markGroup({ mark: "offset", word: "CRUDE HARMONY", scale: 0.42, wordY: 132, wordSize: 15 }),
   },
   {
-    file: "meridian-tee",
-    base: "#efece4", highlight: "#fbfaf7", shadow: "#bdb6a6",
-    ground: ["#2b2b2e", "#131315"], ink: "#17171a",
-    art: markGroup({ mark: "dagger", word: "SINCE THE FIRST RUN", scale: 0.5, wordY: 172, wordSize: 15 }),
+    file: "ridge-02", kind: "tee",
+    base: "#e9e4d9", highlight: "#f6f2ea", shadow: "#b5ae9f",
+    ground: ["#2a2825", "#121110"], ink: "#171614",
+    art: markGroup({ mark: "ridge", word: "VOL. 01", scale: 0.5, wordY: 116, wordSize: 15 }),
   },
   {
-    file: "dune-tee",
-    base: "#b8a083", highlight: "#cdb99c", shadow: "#7d6647",
-    ground: ["#26221c", "#100e0b"], ink: "#221a10",
-    art: markGroup({ mark: "star", word: "DOHA", scale: 0.5, wordY: 170, wordSize: 18 }),
+    file: "margin-03", kind: "tee",
+    base: "#6f6f6d", highlight: "#848481", shadow: "#3f3f3e",
+    ground: ["#242322", "#0e0e0d"], ink: "#14140f",
+    art: markGroup({ mark: "margin", scale: 0.44 }),
   },
   {
-    file: "vale-tee",
-    base: "#3a3d42", highlight: "#4c5057", shadow: "#1c1e21",
-    ground: ["#202226", "#0b0c0d"], ink: "#e6e2f0",
-    art: markGroup({ mark: "hand", word: "CRUDE HARMONY", scale: 0.44, wordY: 172, wordSize: 16 }),
+    file: "seam-04", kind: "hoodie",
+    base: "#17171a", highlight: "#27272b", shadow: "#040405",
+    ground: ["#1b1b1e", "#0a0a0b"], ink: "#ece7dd",
+    art: markGroup({ mark: "seam", scale: 0.5 }),
   },
   {
-    file: "ember-tee",
-    base: "#932f24", highlight: "#ad3e2f", shadow: "#4f1610",
-    ground: ["#241210", "#0d0706"], ink: "#f7e6d6",
-    art: markGroup({ mark: "wings", word: "ONE OF THIRTY", scale: 0.5, wordY: 168, wordSize: 16 }),
+    file: "field-05", kind: "hoodie",
+    base: "#33322f", highlight: "#454340", shadow: "#151513",
+    ground: ["#211f1d", "#0c0b0a"], ink: "#ece7dd",
+    art: markGroup({ mark: "field", word: "DOHA", scale: 0.52, wordY: 150, wordSize: 16 }),
   },
   {
-    file: "obsidian-tee",
-    base: "#141416", highlight: "#242429", shadow: "#000000",
-    ground: ["#1d1d21", "#08080a"], ink: "#c8a02b",
-    art: markGroup({ mark: "crown", word: "NO RESTOCK", scale: 0.5, wordY: 178, wordSize: 16 }),
+    file: "bias-06", kind: "hoodie",
+    base: "#8a8783", highlight: "#9d9a95", shadow: "#54524f",
+    ground: ["#26241f", "#100f0d"], ink: "#141310",
+    art: markGroup({ mark: "bias", scale: 0.46 }),
   },
 ];
 
@@ -238,7 +310,7 @@ async function main() {
   for (const p of PIECES) {
     await writeFile(`public/products/${p.file}.svg`, productShot({ id: p.file, ...p }), "utf-8");
     await writeFile(`public/artwork/${p.file}.svg`, artworkFile({ id: p.file, art: p.art }), "utf-8");
-    console.log(`wrote ${p.file} (product + artwork)`);
+    console.log(`wrote ${p.file} (${p.kind}: product + artwork)`);
   }
 }
 

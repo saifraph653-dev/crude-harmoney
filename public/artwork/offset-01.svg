@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-280 -280 560 560" width="560" height="560" role="img" aria-label="offset-01 artwork">
+  <!-- Single flat colour, solid shapes only: cut-ready. Recolour by
+       changing this one fill. -->
+  <g fill="#000000">
+    <g transform="scale(0.42)">
+      
+    <path fill-rule="evenodd" d="M-140 -140 L20 -140 L20 20 L-140 20 Z
+                                 M-20 -20 L140 -20 L140 140 L-20 140 Z"/>
+    </g>
+    <text x="0" y="132" text-anchor="middle" font-family="Helvetica,Arial,sans-serif" font-size="15" font-weight="700" letter-spacing="6.3">CRUDE HARMONY</text></g>
+</svg>
