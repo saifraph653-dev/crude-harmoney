@@ -55,7 +55,7 @@ export default async function DropsPage() {
           {limited.length > 0 ? (
             <section>
               <div className="flex items-baseline gap-3">
-                <h2 className="text-xl font-semibold tracking-tight sm:text-2xl">
+                <h2 className="section-title">
                   Limited Edition
                 </h2>
                 <span className="eyebrow">{limited.length} pieces</span>
@@ -70,7 +70,7 @@ export default async function DropsPage() {
           {classic.length > 0 ? (
             <section>
               <div className="flex items-baseline gap-3">
-                <h2 className="text-xl font-semibold tracking-tight sm:text-2xl">
+                <h2 className="section-title">
                   Classic Collection
                 </h2>
                 <span className="eyebrow">{classic.length} pieces</span>
