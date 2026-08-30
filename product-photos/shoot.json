@@ -1,0 +1,95 @@
+{
+  "shoot": "Crude Harmony product photography — flat-lay heat-transfer tees",
+  "brand_session_id": "d514009a-ccca-4e1a-9508-75d2c166e98d",
+  "generator": {
+    "provider": "bloom (trybloom.ai)",
+    "model": "pro",
+    "image_size": "2K",
+    "aspect_ratio": "4:5",
+    "reference_image_ids": [],
+    "reference_note": "Deliberately empty. The brand library is hanger shots with flat multi-colour vector graphics — the exact look being replaced. Passing them as references drags output back toward it.",
+    "workspace": "Saif's Team (XfXTtjC9ooZTW4XY264nXyvhpm6bKSsT)",
+    "note_4k": "4K is gated on this plan; the set was shot at 2K (1632x2048, 4:5)."
+  },
+  "style_template": "Overhead product photograph of one {COLOR} cotton t-shirt laid flat on {SURFACE}, shot straight down on a full-frame camera with an 85mm lens at f/4, sharp focus, {LIGHT} with natural falloff and soft real shadows inside the fabric folds. Real garment: visible cotton weave texture, natural wrinkles and creases, ribbed collar, stitched hems. Centered on the chest is a heat-pressed vinyl transfer printed in one single flat {INK} tone only: {GRAPHIC}. The print sits on top of the fabric and follows its wrinkles and weave, with a slight matte vinyl sheen and softly creased edges. No gradients, no shading and no fine detail inside the print. Nothing else in frame: no hangtags, no neck labels, no logos, no watermarks, no props, no other text.",
+  "pieces": [
+    {
+      "slug": "ember-01",
+      "collection": "Limited",
+      "name": "Ember 01",
+      "COLOR": "deep red",
+      "SURFACE": "a dark neutral matte surface",
+      "LIGHT": "soft directional light from one side",
+      "INK": "cream-white",
+      "GRAPHIC": "a winged dagger badge. The dagger is seen from the side and points straight DOWN — a long narrow blade tapering to a sharp point at the bottom, a short handle and a small round pommel at the top — and a pair of small outstretched feathered wings spread horizontally to the left and right from the top of the handle. It must read as a knife with wings, NOT as a cross, crucifix or plus sign. Below the badge is short serif text reading \"ONE OF THIRTY\"",
+      "image_id": "228efc3b-65e5-45bf-b9c6-8ed5bbd86e54",
+      "master": "out/ember-01.jpg",
+      "deployed": "public/products/ember-tee.svg"
+    },
+    {
+      "slug": "obsidian-02",
+      "collection": "Limited",
+      "name": "Obsidian 02",
+      "COLOR": "black",
+      "SURFACE": "a dark neutral matte surface",
+      "LIGHT": "soft directional light from one side",
+      "INK": "muted gold-lavender",
+      "GRAPHIC": "a small minimal crown emblem above short serif text reading \"NO RESTOCK\"",
+      "image_id": "c9942a95-afea-4f6b-904e-b95588bca9fc",
+      "master": "out/obsidian-02.jpg",
+      "deployed": "public/products/obsidian-tee.svg"
+    },
+    {
+      "slug": "atlas-tee",
+      "collection": "Classic",
+      "name": "Atlas Tee",
+      "COLOR": "black",
+      "SURFACE": "a neutral matte surface",
+      "LIGHT": "soft natural light",
+      "INK": "lavender-white",
+      "GRAPHIC": "a small minimal cross emblem above short gothic serif text reading \"CRUDE HARMONY\"",
+      "image_id": "d26d5f1f-ceb1-4ff8-80e0-25414892fe44",
+      "master": "out/atlas-tee.jpg",
+      "deployed": "public/products/atlas-tee.svg"
+    },
+    {
+      "slug": "meridian-tee",
+      "collection": "Classic",
+      "name": "Meridian Tee",
+      "COLOR": "off-white cream",
+      "SURFACE": "a neutral matte surface",
+      "LIGHT": "soft natural light",
+      "INK": "black-charcoal",
+      "GRAPHIC": "a single dagger seen from the side, pointing straight DOWN — a long narrow blade tapering to a sharp point at the bottom, a short wrapped handle above it, and a small round pommel at the very top. The blade is clearly longer than the handle so it reads as a knife, NOT as a cross, crucifix or plus sign. Below the dagger is short serif text reading \"SINCE THE FIRST RUN\"",
+      "image_id": "e8a7e23c-6e39-4885-a6f0-ee0eea83eb13",
+      "master": "out/meridian-tee.jpg",
+      "deployed": "public/products/meridian-tee.svg"
+    },
+    {
+      "slug": "dune-tee",
+      "collection": "Classic",
+      "name": "Dune Tee",
+      "COLOR": "tan sand",
+      "SURFACE": "a neutral matte surface",
+      "LIGHT": "soft warm natural light",
+      "INK": "dark brown-black",
+      "GRAPHIC": "a single small minimal four-point star emblem and no lettering of any kind",
+      "image_id": "09f83348-4ef6-4916-b51b-8a83747ea5bd",
+      "master": "out/dune-tee.jpg",
+      "deployed": "public/products/dune-tee.svg"
+    },
+    {
+      "slug": "vale-tee",
+      "collection": "Classic",
+      "name": "Vale Tee",
+      "COLOR": "charcoal grey",
+      "SURFACE": "a neutral matte surface",
+      "LIGHT": "soft natural light",
+      "INK": "lavender-white",
+      "GRAPHIC": "an open palm with five fingers, shown flat and facing the viewer, fingers pointing upward and the thumb out to one side, like a simple waving or greeting symbol. It should read clearly as a palm, not as a cross or a star. Below it is short gothic serif text reading \"CRUDE HARMONY\"",
+      "image_id": "0f96f417-ebb3-4b5e-9f6e-2791cf78b42e",
+      "master": "out/vale-tee.jpg",
+      "deployed": "public/products/vale-tee.svg"
+    }
+  ]
+}
