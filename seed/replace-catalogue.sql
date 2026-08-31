@@ -10,10 +10,17 @@
 
 begin;
 
--- Old range. order_items carry their own price and name snapshots, so any
+-- Clear whatever is there that is not part of this range.
+--
+-- An allow-list, not a list of names to delete. Naming the rows to remove
+-- missed one the first time, because the database called the sixth piece
+-- 'slate-tee' while the code branch the list came from called it
+-- 'vale-tee'. order_items carry their own price and name snapshots, so any
 -- historical order stays readable; variants cascade with the product.
-delete from products where slug in (
-  'atlas-tee', 'meridian-tee', 'dune-tee', 'vale-tee', 'ember-01', 'obsidian-02'
+delete from products
+where slug not in (
+  'arc-tee', 'monogram-tee', 'arc-hoodie',
+  'stack-hoodie', 'line-tee', 'monogram-hoodie'
 );
 
 insert into products
