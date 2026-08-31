@@ -1,21 +1,17 @@
-// The cross mark from the Atlas piece, reused as the brand device so the
-// site and the garments carry the same symbol. Inline SVG (not an <img>)
-// so it inherits currentColor and needs no extra request.
+// The brand device is the name, set in type.
+//
+// It used to be an ornate flared cross -- the same mark the garments carried
+// before the collection was redesigned. Keeping it as the site logo left the
+// brand identified by a gothic crucifix it has no claim to, which is exactly
+// the borrowed-luxury signal the label should avoid. Independent houses
+// overwhelmingly sign with their name; so does this one.
 export function Wordmark({ className = "" }: { className?: string }) {
   return (
-    <svg
-      viewBox="-190 -190 380 380"
-      className={className}
-      role="img"
-      aria-label="Crude Harmony"
-      fill="currentColor"
+    <span
+      className={`inline-block leading-none font-semibold whitespace-nowrap uppercase ${className}`}
+      style={{ letterSpacing: "0.24em" }}
     >
-      <path d="M-26 -150 L26 -150 L26 -58 L118 -58 L118 -6 L26 -6 L26 150 L-26 150 L-26 -6 L-118 -6 L-118 -58 L-26 -58 Z" />
-      <path d="M0 -178 L22 -150 L-22 -150 Z" />
-      <path d="M0 178 L22 150 L-22 150 Z" />
-      <path d="M-146 -32 L-118 -58 L-118 -6 Z" />
-      <path d="M146 -32 L118 -58 L118 -6 Z" />
-      <path d="M0 -46 L36 -10 L0 26 L-36 -10 Z" />
-    </svg>
+      Crude Harmony
+    </span>
   );
 }
