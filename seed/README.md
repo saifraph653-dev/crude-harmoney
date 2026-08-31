@@ -4,6 +4,18 @@ This file is the product-entry workflow: there is no CMS and no admin UI by
 design. `node scripts/seed-products.mjs` reads it and inserts anything whose
 slug does not already exist.
 
+## Fastest path: run seed/replace-catalogue.sql
+
+Supabase dashboard -> SQL Editor -> New query -> paste
+`seed/replace-catalogue.sql` -> Run. It removes the previous six products
+and inserts the current range, in one transaction, and needs no CLI, no
+environment variables and no local checkout.
+
+Verified against PostgreSQL 16 with every migration in `supabase/migrations`
+applied: six old rows removed, six inserted, 24 variants, no orphans.
+
+The rest of this file describes the script-based route, which is equivalent.
+
 ## The database still holds the previous range
 
 The storefront is live with the new design, but the catalogue it renders
