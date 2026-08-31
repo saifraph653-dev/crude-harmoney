@@ -14,6 +14,10 @@ environment variables and no local checkout.
 Verified against PostgreSQL 16 with every migration in `supabase/migrations`
 applied: six old rows removed, six inserted, 24 variants, no orphans.
 
+If a stray product is still showing (a broken tile, or a piece that is not
+one of the six), run `seed/remove-stragglers.sql`. It deletes by allow-list
+rather than by name, so nothing can be missed.
+
 The rest of this file describes the script-based route, which is equivalent.
 
 ## The database still holds the previous range
