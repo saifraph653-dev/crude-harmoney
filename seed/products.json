@@ -1,39 +1,39 @@
 [
   {
-    "slug": "wordmark-tee",
-    "name": "Wordmark Tee",
+    "slug": "arc-tee",
+    "name": "Arc Tee",
     "collection": "classic",
     "displayOrder": 1,
-    "description": "The house name stacked across the back in cream, with a rule and DOHA \u00b7 QATAR set beneath it. Small chest mark on the front. Heavyweight black cotton, boxy cut, ribbed collar.",
+    "description": "Arched wordmark across the back with DOHA beneath, small CH at the left chest. Washed-black heavyweight cotton, oversized boxy fit, dropped shoulders. Shown as a concept render; the first run has not been produced yet.",
     "status": "coming_soon",
-    "imagePath": "/products/wordmark-tee.jpg",
+    "imagePath": "/products/arc-tee.jpg",
     "imageWidth": 1400,
     "imageHeight": 1757,
     "variants": [
       {
         "size": "S",
-        "sku": "CH-WRD-S",
+        "sku": "CH-ARC-S",
         "priceCents": 18000,
         "stockCount": 10,
         "sortOrder": 1
       },
       {
         "size": "M",
-        "sku": "CH-WRD-M",
+        "sku": "CH-ARC-M",
         "priceCents": 18000,
         "stockCount": 16,
         "sortOrder": 2
       },
       {
         "size": "L",
-        "sku": "CH-WRD-L",
+        "sku": "CH-ARC-L",
         "priceCents": 18000,
         "stockCount": 16,
         "sortOrder": 3
       },
       {
         "size": "XL",
-        "sku": "CH-WRD-XL",
+        "sku": "CH-ARC-XL",
         "priceCents": 18000,
         "stockCount": 10,
         "sortOrder": 4
@@ -41,40 +41,40 @@
     ]
   },
   {
-    "slug": "volume-tee",
-    "name": "Volume Tee",
+    "slug": "monogram-tee",
+    "name": "Monogram Tee",
     "collection": "classic",
     "displayOrder": 2,
-    "description": "The first volume, set as a single numeral across the back. Small 01 at the left chest. Heavyweight off-white cotton, boxy cut, ribbed collar.",
+    "description": "The CH mark set large across the back over DOHA \u00b7 QATAR, small wordmark at the left chest. Vintage off-white heavyweight cotton, oversized boxy fit. Shown as a concept render; the first run has not been produced yet.",
     "status": "coming_soon",
-    "imagePath": "/products/volume-tee.jpg",
+    "imagePath": "/products/monogram-tee.jpg",
     "imageWidth": 1400,
     "imageHeight": 1757,
     "variants": [
       {
         "size": "S",
-        "sku": "CH-VOL-S",
+        "sku": "CH-MON-S",
         "priceCents": 18000,
         "stockCount": 10,
         "sortOrder": 1
       },
       {
         "size": "M",
-        "sku": "CH-VOL-M",
+        "sku": "CH-MON-M",
         "priceCents": 18000,
         "stockCount": 16,
         "sortOrder": 2
       },
       {
         "size": "L",
-        "sku": "CH-VOL-L",
+        "sku": "CH-MON-L",
         "priceCents": 18000,
         "stockCount": 16,
         "sortOrder": 3
       },
       {
         "size": "XL",
-        "sku": "CH-VOL-XL",
+        "sku": "CH-MON-XL",
         "priceCents": 18000,
         "stockCount": 10,
         "sortOrder": 4
@@ -82,81 +82,81 @@
     ]
   },
   {
-    "slug": "spec-tee",
-    "name": "Spec Tee",
+    "slug": "arc-hoodie",
+    "name": "Arc Hoodie",
     "collection": "classic",
     "displayOrder": 3,
-    "description": "How the pieces are made, set as a justified block and printed like a spec sheet. Small mark on the front. Heather grey heavyweight cotton.",
+    "description": "Arched wordmark over the CH mark across the back, small CH at the left chest. Washed-black heavyweight cotton, boxy fit, ribbed cuffs and hem. Shown as a concept render; the first run has not been produced yet.",
     "status": "coming_soon",
-    "imagePath": "/products/spec-tee.jpg",
+    "imagePath": "/products/arc-hoodie.jpg",
     "imageWidth": 1400,
     "imageHeight": 1757,
     "variants": [
       {
         "size": "S",
-        "sku": "CH-SPC-S",
-        "priceCents": 18000,
+        "sku": "CH-ARH-S",
+        "priceCents": 32000,
         "stockCount": 10,
         "sortOrder": 1
       },
       {
         "size": "M",
-        "sku": "CH-SPC-M",
-        "priceCents": 18000,
+        "sku": "CH-ARH-M",
+        "priceCents": 32000,
         "stockCount": 16,
         "sortOrder": 2
       },
       {
         "size": "L",
-        "sku": "CH-SPC-L",
-        "priceCents": 18000,
+        "sku": "CH-ARH-L",
+        "priceCents": 32000,
         "stockCount": 16,
         "sortOrder": 3
       },
       {
         "size": "XL",
-        "sku": "CH-SPC-XL",
-        "priceCents": 18000,
+        "sku": "CH-ARH-XL",
+        "priceCents": 32000,
         "stockCount": 10,
         "sortOrder": 4
       }
     ]
   },
   {
-    "slug": "spine-hoodie",
-    "name": "Spine Hoodie",
+    "slug": "stack-hoodie",
+    "name": "Stack Hoodie",
     "collection": "classic",
     "displayOrder": 4,
-    "description": "The name run vertically down the centre back in cream. Small chest mark on the front. Heavyweight black cotton, kangaroo pocket, ribbed cuffs and hem.",
+    "description": "Wordmark stacked and set flush left across the back with DOHA \u2014 QATAR beneath, small wordmark at the left chest. Charcoal heavyweight cotton, boxy fit. Shown as a concept render; the first run has not been produced yet.",
     "status": "coming_soon",
-    "imagePath": "/products/spine-hoodie.jpg",
+    "imagePath": "/products/stack-hoodie.jpg",
     "imageWidth": 1400,
     "imageHeight": 1757,
     "variants": [
       {
         "size": "S",
-        "sku": "CH-SPN-S",
+        "sku": "CH-STK-S",
         "priceCents": 32000,
         "stockCount": 10,
         "sortOrder": 1
       },
       {
         "size": "M",
-        "sku": "CH-SPN-M",
+        "sku": "CH-STK-M",
         "priceCents": 32000,
         "stockCount": 16,
         "sortOrder": 2
       },
       {
         "size": "L",
-        "sku": "CH-SPN-L",
+        "sku": "CH-STK-L",
         "priceCents": 32000,
         "stockCount": 16,
         "sortOrder": 3
       },
       {
         "size": "XL",
-        "sku": "CH-SPN-XL",
+        "sku": "CH-STK-XL",
         "priceCents": 32000,
         "stockCount": 10,
         "sortOrder": 4
@@ -164,81 +164,81 @@
     ]
   },
   {
-    "slug": "bar-hoodie",
-    "name": "Bar Hoodie",
+    "slug": "line-tee",
+    "name": "Line Tee \u2014 Women's",
     "collection": "classic",
     "displayOrder": 5,
-    "description": "Wordmark over a solid bar, DOHA \u2014 VOL. 01 beneath. Small DOHA at the left chest. Charcoal heavyweight cotton, kangaroo pocket, ribbed cuffs and hem.",
+    "description": "Wordmark set between two rules high on the back, small CH at the left chest. Vintage cream cotton, boxy cropped cut with a straight hem. Shown as a concept render; the first run has not been produced yet.",
     "status": "coming_soon",
-    "imagePath": "/products/bar-hoodie.jpg",
+    "imagePath": "/products/line-tee.jpg",
     "imageWidth": 1400,
     "imageHeight": 1757,
     "variants": [
       {
         "size": "S",
-        "sku": "CH-BAR-S",
-        "priceCents": 32000,
+        "sku": "CH-LIN-S",
+        "priceCents": 18000,
         "stockCount": 10,
         "sortOrder": 1
       },
       {
         "size": "M",
-        "sku": "CH-BAR-M",
-        "priceCents": 32000,
+        "sku": "CH-LIN-M",
+        "priceCents": 18000,
         "stockCount": 16,
         "sortOrder": 2
       },
       {
         "size": "L",
-        "sku": "CH-BAR-L",
-        "priceCents": 32000,
+        "sku": "CH-LIN-L",
+        "priceCents": 18000,
         "stockCount": 16,
         "sortOrder": 3
       },
       {
         "size": "XL",
-        "sku": "CH-BAR-XL",
-        "priceCents": 32000,
+        "sku": "CH-LIN-XL",
+        "priceCents": 18000,
         "stockCount": 10,
         "sortOrder": 4
       }
     ]
   },
   {
-    "slug": "harmony-hoodie",
-    "name": "Harmony Hoodie",
+    "slug": "monogram-hoodie",
+    "name": "Monogram Hoodie \u2014 Women's",
     "collection": "classic",
     "displayOrder": 6,
-    "description": "A single word across the back, CRUDE set small above it. Small mark on the front. Heather grey heavyweight cotton, kangaroo pocket, ribbed cuffs and hem.",
+    "description": "The CH mark across the back, small wordmark at the left chest. Heather grey cotton, relaxed cropped cut, ribbed cuffs and hem. Shown as a concept render; the first run has not been produced yet.",
     "status": "coming_soon",
-    "imagePath": "/products/harmony-hoodie.jpg",
+    "imagePath": "/products/monogram-hoodie.jpg",
     "imageWidth": 1400,
     "imageHeight": 1757,
     "variants": [
       {
         "size": "S",
-        "sku": "CH-HRM-S",
+        "sku": "CH-MNH-S",
         "priceCents": 32000,
         "stockCount": 10,
         "sortOrder": 1
       },
       {
         "size": "M",
-        "sku": "CH-HRM-M",
+        "sku": "CH-MNH-M",
         "priceCents": 32000,
         "stockCount": 16,
         "sortOrder": 2
       },
       {
         "size": "L",
-        "sku": "CH-HRM-L",
+        "sku": "CH-MNH-L",
         "priceCents": 32000,
         "stockCount": 16,
         "sortOrder": 3
       },
       {
         "size": "XL",
-        "sku": "CH-HRM-XL",
+        "sku": "CH-MNH-XL",
         "priceCents": 32000,
         "stockCount": 10,
         "sortOrder": 4

@@ -1,91 +1,85 @@
 # Renders the collection's artwork as precise typography.
 #
-# Previously the graphics were whatever an image model produced from a
-# description. They are now laid out here, in CSS, and rendered by a browser
-# with the brand's own typeface -- so the letterforms, spacing and
-# composition are decided rather than approximated.
+# The layouts live here, in CSS and SVG, set in the brand's typeface and
+# rendered by a browser. The image model never designs a graphic; it only
+# photographs blank garments.
+#
+# Vocabulary: an arched wordmark and a tight CH monogram. Both are the
+# ordinary devices of clothing people actually wear, which is the point --
+# an earlier pass was justified text blocks and stepped bars, which read as
+# a design exercise rather than a shirt someone would pick up.
 from playwright.sync_api import sync_playwright
-import pathlib, json
+import pathlib
 
-CREAM = "#ECE7DD"
-INK = "#14130F"
+CREAM = "#EDE8DE"
+INK = "#16150F"
 
 FONT = ("https://fonts.googleapis.com/css2?"
         "family=Archivo:wght@400;500;600;700;800;900&display=swap")
 
-# Only true statements about the brand appear in the artwork: the name, the
-# city, the volume, and how the pieces are made. No invented run counts, no
-# slogans, no Latin, no dates.
+
+def arch(text, sub, color, size=112, weight=800, width=1400, sweep=210, track=2):
+    """Wordmark on an arc. Curved type is the most recognisable device in
+    everyday streetwear and the one thing this brand did not have."""
+    sub_markup = (f'<text x="700" y="{sweep + 176}" text-anchor="middle" '
+                  f'font-size="34" font-weight="700" letter-spacing="14" '
+                  f'fill="{color}">{sub}</text>') if sub else ""
+    return f'''
+<svg viewBox="0 0 1400 {sweep + 230}" width="{width}" xmlns="http://www.w3.org/2000/svg">
+  <defs><path id="a" d="M 110 {sweep + 40} A 620 {sweep - 10} 0 0 1 1290 {sweep + 40}"/></defs>
+  <text font-family="Archivo" font-size="{size}" font-weight="{weight}"
+        letter-spacing="{track}" fill="{color}">
+    <textPath href="#a" startOffset="50%" text-anchor="middle">{text}</textPath>
+  </text>
+  {sub_markup}
+</svg>'''
+
+
+def monogram(color, size=300):
+    """CH set tight enough that the letters meet. Drawn from the brand's own
+    typeface rather than invented, so the mark and the wordmark are the same
+    voice."""
+    return (f'<div style="font-size:{size}px;font-weight:900;letter-spacing:-.09em;'
+            f'color:{color};line-height:.82">CH</div>')
+
+
 BACKS = {
-"shirt-01": ("""
-<div class="stack">
-  <div class="lockup">CRUDE<br>HARMONY</div>
-  <div class="rule"></div>
-  <div class="meta">DOHA &nbsp;·&nbsp; QATAR</div>
-</div>""", CREAM, """
-.lockup{font-weight:800;font-size:150px;line-height:.84;letter-spacing:-.045em;text-align:center}
-.rule{height:3px;background:currentColor;margin:30px auto 0;width:100%}
-.meta{margin-top:16px;font-size:20px;letter-spacing:.42em;font-weight:600;text-align:center}
-"""),
-
-"shirt-02": ("""
-<div class="stack">
-  <div class="vol">VOL.</div>
-  <div class="num">01</div>
-  <div class="meta">CUT AND PRESSED ONE PIECE AT A TIME</div>
-</div>""", INK, """
-.vol{font-size:30px;letter-spacing:.4em;font-weight:700;text-align:center;margin-bottom:6px}
-.num{font-weight:900;font-size:290px;line-height:.78;letter-spacing:-.06em;text-align:center}
-.meta{margin-top:26px;font-size:17px;letter-spacing:.3em;font-weight:600;text-align:center}
-"""),
-
-"shirt-03": ("""
-<div class="stack">
-  <div class="rule"></div>
-  <p class="block">HEAVYWEIGHT BLANKS. CUT AND PRESSED ONE PIECE AT A TIME. EACH RUN IS A FIXED NUMBER. WHEN A SIZE IS GONE IT IS GONE. WE DO NOT REPRINT.</p>
-  <div class="rule"></div>
-  <div class="meta">CRUDE HARMONY &nbsp;·&nbsp; DOHA</div>
-</div>""", INK, """
-.rule{height:2px;background:currentColor;width:100%}
-.block{font-size:42px;line-height:1.34;letter-spacing:.02em;font-weight:600;text-align:justify;margin:22px 0}
-.meta{margin-top:14px;font-size:18px;letter-spacing:.36em;font-weight:600;text-align:center}
-"""),
-
-"hoodie-01": ("""
-<div class="spine"><span>CRUDE HARMONY</span></div>""", CREAM, """
-.spine{display:flex;align-items:center;justify-content:center;width:100%;height:1240px}
-.spine span{font-size:62px;font-weight:700;letter-spacing:.42em;white-space:nowrap;
-            transform:rotate(90deg);transform-origin:center}
-"""),
-
-"hoodie-02": ("""
-<div class="stack">
-  <div class="top">CRUDE HARMONY</div>
-  <div class="bar"></div>
-  <div class="meta">DOHA &nbsp;—&nbsp; VOL. 01</div>
-</div>""", CREAM, """
-.top{font-size:56px;font-weight:700;letter-spacing:.26em;text-align:center}
-.bar{height:26px;background:currentColor;margin:22px 0;width:100%}
-.meta{font-size:22px;letter-spacing:.4em;font-weight:600;text-align:center}
-"""),
-
-"hoodie-03": ("""
-<div class="stack">
-  <div class="small">CRUDE</div>
-  <div class="word">HARMONY</div>
-</div>""", INK, """
-.small{font-size:26px;letter-spacing:.5em;font-weight:700;text-align:right;margin-bottom:10px;padding-right:2.2em}
-.word{font-size:118px;font-weight:800;letter-spacing:.06em;text-align:center;line-height:1}
-"""),
+    # Men's tee 01 -- the signature arc.
+    "arc-tee": arch("CRUDE HARMONY", "DOHA", CREAM),
+    # Men's tee 02 -- the mark, large and alone.
+    "monogram-tee": (f'<div style="text-align:center">{monogram(INK, 360)}'
+                     f'<div style="font-size:30px;font-weight:700;letter-spacing:.42em;'
+                     f'color:{INK};margin-top:26px">DOHA &nbsp;·&nbsp; QATAR</div></div>'),
+    # Men's hoodie 01 -- both devices together, arc over mark. A straight rule
+    # under a curved baseline read as a floating bar, and arc-plus-subtext was
+    # too close to the tee to count as a second design.
+    "arc-hoodie": ('<div style="text-align:center">'
+                   + arch("CRUDE HARMONY", "", CREAM, size=104, width=1300)
+                   + f'<div style="margin-top:-140px">{monogram(CREAM, 210)}</div></div>'),
+    # Men's hoodie 02 -- quieter, set flush left instead of centred.
+    "stack-hoodie": (f'<div style="text-align:left">'
+                     f'<div style="font-size:132px;font-weight:800;line-height:.86;'
+                     f'letter-spacing:-.04em;color:{CREAM}">CRUDE<br>HARMONY</div>'
+                     f'<div style="font-size:28px;font-weight:700;letter-spacing:.4em;'
+                     f'color:{CREAM};margin-top:22px">DOHA — QATAR</div></div>'),
+    # Women's tee -- its own treatment: a small rule-set wordmark, placed high,
+    # not the men's arc shrunk down.
+    "line-tee": (f'<div style="text-align:center">'
+                 f'<div style="height:2px;background:{INK};width:100%"></div>'
+                 f'<div style="font-size:58px;font-weight:700;letter-spacing:.3em;'
+                 f'color:{INK};margin:22px 0">CRUDE HARMONY</div>'
+                 f'<div style="height:2px;background:{INK};width:100%"></div></div>'),
+    # Women's hoodie -- the mark on its own, smaller and higher.
+    "monogram-hoodie": (f'<div style="text-align:center">{monogram(INK, 250)}</div>'),
 }
 
 FRONTS = {
-"shirt-01": ("CRUDE HARMONY", CREAM, 26, ".34em"),
-"shirt-02": ("01", INK, 46, ".05em"),
-"shirt-03": ("CH", INK, 40, ".18em"),
-"hoodie-01": ("CRUDE HARMONY", CREAM, 24, ".34em"),
-"hoodie-02": ("DOHA", CREAM, 28, ".38em"),
-"hoodie-03": ("CH", INK, 38, ".18em"),
+    "arc-tee":         ('<div class="m" style="font-size:74px;font-weight:900;letter-spacing:-.09em">CH</div>', CREAM),
+    "monogram-tee":    ('<div class="m" style="font-size:26px;font-weight:700;letter-spacing:.34em">CRUDE HARMONY</div>', INK),
+    "arc-hoodie":      ('<div class="m" style="font-size:70px;font-weight:900;letter-spacing:-.09em">CH</div>', CREAM),
+    "stack-hoodie":    ('<div class="m" style="font-size:24px;font-weight:700;letter-spacing:.34em">CRUDE HARMONY</div>', CREAM),
+    "line-tee":        ('<div class="m" style="font-size:58px;font-weight:900;letter-spacing:-.09em">CH</div>', INK),
+    "monogram-hoodie": ('<div class="m" style="font-size:22px;font-weight:700;letter-spacing:.34em">CRUDE HARMONY</div>', INK),
 }
 
 SHELL = """<!doctype html><html><head><meta charset="utf-8">
@@ -93,39 +87,34 @@ SHELL = """<!doctype html><html><head><meta charset="utf-8">
 <link href="{font}" rel="stylesheet">
 <style>
   html,body{{margin:0;background:transparent}}
-  body{{font-family:Archivo,sans-serif;color:{color};display:flex;
-        align-items:center;justify-content:center;width:{w}px;min-height:{h}px}}
-  .stack{{width:100%}}
-  {css}
-</style></head><body>{html}</body></html>"""
+  body{{font-family:Archivo,sans-serif;display:flex;align-items:center;
+        justify-content:center;width:{w}px;min-height:{h}px;padding:40px;
+        box-sizing:border-box}}
+  svg text{{font-family:Archivo,sans-serif}}
+</style></head><body><div style="width:100%">{html}</div></body></html>"""
 
 out = pathlib.Path("/tmp/art"); out.mkdir(exist_ok=True)
 with sync_playwright() as pw:
     b = pw.chromium.launch(executable_path="/opt/pw-browsers/chromium")
-    for slug,(html,color,css) in BACKS.items():
-        w,h = (620, 1300) if slug=="hoodie-01" else (900, 620)
-        pg = b.new_page(viewport={"width":w,"height":h}, device_scale_factor=2)
-        pg.set_content(SHELL.format(font=FONT,color=color,css=css,html=html,w=w,h=h))
-        pg.wait_for_timeout(1400)
-        pg.screenshot(path=str(out/f"back-{slug}.png"), omit_background=True)
+    for slug, html in BACKS.items():
+        pg = b.new_page(viewport={"width": 1600, "height": 900}, device_scale_factor=2)
+        pg.set_content(SHELL.format(font=FONT, html=html, w=1600, h=900))
+        pg.wait_for_timeout(1600)
+        pg.screenshot(path=str(out / f"back-{slug}.png"), omit_background=True)
         pg.close()
-    for slug,(text,color,size,track) in FRONTS.items():
-        pg = b.new_page(viewport={"width":700,"height":160}, device_scale_factor=3)
-        pg.set_content(SHELL.format(font=FONT,color=color,w=700,h=160,
-            css=f".m{{font-size:{size}px;font-weight:700;letter-spacing:{track}}}",
-            html=f'<div class="m">{text}</div>'))
-        pg.wait_for_timeout(1200)
-        pg.screenshot(path=str(out/f"front-{slug}.png"), omit_background=True)
+    for slug, (html, color) in FRONTS.items():
+        pg = b.new_page(viewport={"width": 900, "height": 240}, device_scale_factor=3)
+        pg.set_content(SHELL.format(font=FONT, html=f'<div style="color:{color};text-align:center">{html}</div>', w=900, h=240))
+        pg.wait_for_timeout(1400)
+        pg.screenshot(path=str(out / f"front-{slug}.png"), omit_background=True)
         pg.close()
     b.close()
 
-# Trim each file to its ink, so compositing can position by real artwork
-# bounds rather than by whatever canvas it happened to be drawn on.
+# Trim to the ink so compositing positions by real artwork bounds.
 from PIL import Image
 for f in sorted(out.glob("*.png")):
     im = Image.open(f).convert("RGBA")
     bbox = im.getchannel("A").getbbox()
     if bbox:
         im.crop(bbox).save(f)
-
-print("rendered", len(BACKS), "backs and", len(FRONTS), "fronts")
+print("rendered", len(BACKS), "backs,", len(FRONTS), "fronts")

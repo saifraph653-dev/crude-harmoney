@@ -11,16 +11,20 @@ OUT = pathlib.Path("/tmp/mockups")  # scratch; the shipped files live in public/
 
 # width as a fraction of the frame, and the top edge as a fraction of height
 PLACEMENT = {
-    "shirt-01":  dict(w=0.46, top=0.34),
-    "shirt-02":  dict(w=0.30, top=0.32),
-    "shirt-03":  dict(w=0.46, top=0.36),
-    "hoodie-01": dict(w=0.030, top=0.34),   # vertical spine
-    "hoodie-02": dict(w=0.44, top=0.44),
-    "hoodie-03": dict(w=0.46, top=0.46),
+    # Upper back, roughly between the shoulder blades, at print widths a
+    # transfer sheet actually comes in.
+    "arc-tee":         dict(w=0.42, top=0.33),
+    "monogram-tee":    dict(w=0.26, top=0.32),
+    "arc-hoodie":      dict(w=0.46, top=0.40),
+    "stack-hoodie":    dict(w=0.34, top=0.44),
+    # Women's pieces sit smaller and higher, which is the difference between
+    # a women's cut and a men's graphic dropped onto a narrower body.
+    "line-tee":        dict(w=0.50, top=0.31),
+    "monogram-hoodie": dict(w=0.20, top=0.40),
 }
 
 for slug, place in PLACEMENT.items():
-    garment = Image.open(f"/tmp/blanks/{slug}.png").convert("RGB")
+    garment = Image.open(f"/tmp/blanks2/{slug}.png").convert("RGB")
     art = Image.open(f"/tmp/art/back-{slug}.png").convert("RGBA")
 
     GW, GH = garment.size
